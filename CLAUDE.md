@@ -1,6 +1,6 @@
-# DevStore app repo rules (Android app + Windows server)
+# DevStore app repo rules (Android app + Windows server + Docker image)
 
-This repo is released through DevStore. Pushing to `main` builds both parts. Each
+This repo is released through DevStore. Pushing to `main` builds every part. Each
 part releases on its own when its version is bumped.
 
 ## Android app (`app/`)
@@ -31,9 +31,8 @@ next to the exe.
 
 - **Never change `name`** (`werd-server`), `language` or `type` in
   `server/devstore.json`. Bump `version` (`MAJOR.MINOR.PATCH`) for every server
-  change the user should receive. Keep `build.sh` (`VERSION`), `Dockerfile`,
-  `docker-compose.yml` and `winres/winres.json` (then regenerate the `.syso`
-  files) in step with it.
+  change the user should receive. Keep `build.sh` (`VERSION`) and
+  `winres/winres.json` (then regenerate the `.syso` files) in step with it.
 - It is a `service`: DevStore installs and runs it as `devstore-werd-server`.
   Don't use the exe's own `install` command on a DevStore-managed PC. It runs
   in the foreground and exits cleanly on Ctrl+C / SIGTERM.
@@ -43,3 +42,21 @@ next to the exe.
   `gpu.go`. Update its SHA-256 when changing the build.
 - Keep `go.mod` and `go.sum` committed. Embed web assets with `go:embed`.
 - Store listing: `displayName`, `description` and `icon` (`winres/icon.png`).
+
+## Docker image (`server/`, NAS)
+
+The same `version` bump in `server/devstore.json` also publishes the Docker
+image `ghcr.io/qawalah/werd-server:<version>` and moves `latest` (tag
+`docker-v...`), but only after CI has started the image and seen its health
+check pass. Watchtower on the user's Synology NAS installs it by itself.
+
+- **Keep the `HEALTHCHECK`** in `server/Dockerfile`. CI won't publish an image
+  without one, or one that never turns healthy.
+- The llama.cpp build and SHA-256 in `server/Dockerfile` must match `llamaBuild`
+  in `gpu.go`, the same as `scripts/prepare-llama.ps1`. The build runs
+  `llama-server --version`, so a missing library fails the build.
+- Don't put a version in `Dockerfile` or `docker-compose.yml`. CI passes
+  `VERSION` as a build argument and labels the image.
+- The image is Intel/AMD (`linux/amd64`) only. Data lives in the `/data` volume.
+- To check an image change before pushing, if Docker is available:
+  `docker build --build-arg VERSION=<version> -t werd-test server`.
