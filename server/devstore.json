@@ -1,0 +1,11 @@
+{
+  "name": "werd-server",
+  "displayName": "Werd Server",
+  "description": "The family server for the Werd app: a shared library of awrad and books, family groups, AI page reading and server voices. Runs in the background and is managed from a web dashboard.",
+  "icon": "winres/icon.png",
+  "type": "service",
+  "language": "go",
+  "entry": ".",
+  "version": "1.8.0",
+  "prepare": "scripts/prepare-llama.ps1"
+}

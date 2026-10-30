@@ -1,5 +1,7 @@
-# DevStore: every push to main builds the app; a bumped versionCode publishes
-# a signed APK as a GitHub Release, which Obtainium installs on the phone.
+# DevStore, for a repo with BOTH an Android app and a Windows companion.
+# Every push to main builds both. A bumped versionCode releases the APK
+# (tag android-v...), a bumped version in <windows folder>/devstore.json
+# releases the Windows app (tag windows-v...). Each part releases on its own.
 name: Release
 
 on:
@@ -11,6 +13,13 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  android:
     uses: qawalah/devstore/.github/workflows/android-release.yml@main
     secrets: inherit
+    # with:
+    #   module: app            # the Android app module, if not "app"
+
+  windows:
+    uses: qawalah/devstore/.github/workflows/windows-release.yml@main
+    with:
+      working-directory: server   # the folder that holds devstore.json
