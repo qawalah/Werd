@@ -28,38 +28,15 @@ android {
         buildConfigField("String", "SERVER_URL", "\"${(project.findProperty("werdServerUrl") as String?) ?: ""}\"")
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
+        versionCode = 19
         versionName = "1.15"
         // Phones are ARM (64- and 32-bit); keeps the OCR native libraries small
         // one APK per processor type (see splits below)
     }
 
-    // Release signing: the key and its passwords never live in the repo. They come from environment variables
-    // (CI: GitHub secrets) or from ~/.gradle/gradle.properties on a developer's machine:
-    //   WERD_KEYSTORE_FILE / werdKeystoreFile      path to werd-release.jks (default: app/werd-release.jks, git-ignored)
-    //   WERD_KEYSTORE_PASSWORD / werdKeystorePassword
-    //   WERD_KEY_ALIAS / werdKeyAlias              (default "werd")
-    //   WERD_KEY_PASSWORD / werdKeyPassword
-    // Without them a release build is left unsigned. Updates only install over the existing app when signed with the
-    // same key (SHA-256 13:f3:d0:dc…), so never make a new one.
-    fun secret(env: String, prop: String): String? =
-        System.getenv(env)?.takeIf { it.isNotBlank() } ?: (project.findProperty(prop) as String?)?.takeIf { it.isNotBlank() }
-    val keystore = file(secret("WERD_KEYSTORE_FILE", "werdKeystoreFile") ?: "werd-release.jks")
-    val storePass = secret("WERD_KEYSTORE_PASSWORD", "werdKeystorePassword")
-    val canSign = keystore.exists() && storePass != null
-    signingConfigs {
-        if (canSign) create("release") {
-            storeFile = keystore
-            storePassword = storePass
-            keyAlias = secret("WERD_KEY_ALIAS", "werdKeyAlias") ?: "werd"
-            keyPassword = secret("WERD_KEY_PASSWORD", "werdKeyPassword") ?: storePass
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
-            if (canSign) signingConfig = signingConfigs.getByName("release")
         }
     }
 
