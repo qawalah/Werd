@@ -1,0 +1,653 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "3528b795e7dffd092db0af8ba4865568",
+    "entities": [
+      {
+        "tableName": "werd_groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `position` INTEGER NOT NULL, `colorIndex` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "colorIndex",
+            "columnName": "colorIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "werds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `groupId` INTEGER, `position` INTEGER NOT NULL, `colorIndex` INTEGER NOT NULL, `goalDaysMask` INTEGER NOT NULL, `note` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "groupId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "colorIndex",
+            "columnName": "colorIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goalDaysMask",
+            "columnName": "goalDaysMask",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_werds_groupId",
+            "unique": false,
+            "columnNames": [
+              "groupId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_werds_groupId` ON `${TABLE_NAME}` (`groupId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "werd_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `werdId` INTEGER NOT NULL, `position` INTEGER NOT NULL, `text` TEXT NOT NULL, `target` INTEGER NOT NULL, FOREIGN KEY(`werdId`) REFERENCES `werds`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "werdId",
+            "columnName": "werdId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "target",
+            "columnName": "target",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_werd_items_werdId",
+            "unique": false,
+            "columnNames": [
+              "werdId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_werd_items_werdId` ON `${TABLE_NAME}` (`werdId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "werds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "werdId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `werdId` INTEGER NOT NULL, `day` INTEGER NOT NULL, `counts` TEXT NOT NULL, `completed` INTEGER NOT NULL, `completedAt` INTEGER, `updatedAt` INTEGER NOT NULL, FOREIGN KEY(`werdId`) REFERENCES `werds`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "werdId",
+            "columnName": "werdId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "counts",
+            "columnName": "counts",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completed",
+            "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAt",
+            "columnName": "completedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sessions_werdId_day",
+            "unique": true,
+            "columnNames": [
+              "werdId",
+              "day"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sessions_werdId_day` ON `${TABLE_NAME}` (`werdId`, `day`)"
+          },
+          {
+            "name": "index_sessions_day",
+            "unique": false,
+            "columnNames": [
+              "day"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sessions_day` ON `${TABLE_NAME}` (`day`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "werds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "werdId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reminders",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `werdId` INTEGER, `groupId` INTEGER, `excludedWerds` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `hour` INTEGER NOT NULL, `minute` INTEGER NOT NULL, `daysMask` INTEGER NOT NULL, `dateValue` INTEGER, `intervalDays` INTEGER NOT NULL, `lat` REAL, `lng` REAL, `radius` REAL NOT NULL, `placeName` TEXT NOT NULL, `onExit` INTEGER NOT NULL, `ssid` TEXT NOT NULL, `btAddress` TEXT NOT NULL, `btName` TEXT NOT NULL, `cooldownHours` INTEGER NOT NULL, `skipIfDone` INTEGER NOT NULL, `lastFired` INTEGER NOT NULL, `prayer` INTEGER NOT NULL, `offsetMin` INTEGER NOT NULL, FOREIGN KEY(`werdId`) REFERENCES `werds`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`groupId`) REFERENCES `werd_groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "werdId",
+            "columnName": "werdId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "groupId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "excludedWerds",
+            "columnName": "excludedWerds",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enabled",
+            "columnName": "enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hour",
+            "columnName": "hour",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minute",
+            "columnName": "minute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "daysMask",
+            "columnName": "daysMask",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateValue",
+            "columnName": "dateValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "intervalDays",
+            "columnName": "intervalDays",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "lng",
+            "columnName": "lng",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "radius",
+            "columnName": "radius",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeName",
+            "columnName": "placeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "onExit",
+            "columnName": "onExit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ssid",
+            "columnName": "ssid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btAddress",
+            "columnName": "btAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btName",
+            "columnName": "btName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cooldownHours",
+            "columnName": "cooldownHours",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "skipIfDone",
+            "columnName": "skipIfDone",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastFired",
+            "columnName": "lastFired",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prayer",
+            "columnName": "prayer",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "offsetMin",
+            "columnName": "offsetMin",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reminders_werdId",
+            "unique": false,
+            "columnNames": [
+              "werdId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reminders_werdId` ON `${TABLE_NAME}` (`werdId`)"
+          },
+          {
+            "name": "index_reminders_groupId",
+            "unique": false,
+            "columnNames": [
+              "groupId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reminders_groupId` ON `${TABLE_NAME}` (`groupId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "werds",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "werdId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "werd_groups",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "groupId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sources",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `kind` TEXT NOT NULL, `path` TEXT NOT NULL, `pageCount` INTEGER NOT NULL, `pagesDone` INTEGER NOT NULL, `status` TEXT NOT NULL, `error` TEXT NOT NULL, `provider` TEXT NOT NULL, `model` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageCount",
+            "columnName": "pageCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pagesDone",
+            "columnName": "pagesDone",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "error",
+            "columnName": "error",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provider",
+            "columnName": "provider",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "model",
+            "columnName": "model",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "source_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sourceId` INTEGER NOT NULL, `position` INTEGER NOT NULL, `page` INTEGER NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `count` INTEGER NOT NULL, `occasion` TEXT NOT NULL, `occasionText` TEXT NOT NULL, `note` TEXT NOT NULL, `werdId` INTEGER, FOREIGN KEY(`sourceId`) REFERENCES `sources`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceId",
+            "columnName": "sourceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "page",
+            "columnName": "page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occasion",
+            "columnName": "occasion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occasionText",
+            "columnName": "occasionText",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "werdId",
+            "columnName": "werdId",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_source_items_sourceId",
+            "unique": false,
+            "columnNames": [
+              "sourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_source_items_sourceId` ON `${TABLE_NAME}` (`sourceId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sources",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sourceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3528b795e7dffd092db0af8ba4865568')"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+# Werd server for a NAS (Synology Container Manager, QNAP Container Station, Unraid, TrueNAS, Portainer…)
+# or any machine with Docker.
+#
+# Keep this file together with "Dockerfile" and the "dist" folder, then:
+#   Synology: Container Manager → Project → Create → choose this folder → it builds and starts by itself
+#   Command line: docker compose up -d
+#
+# Building happens on the NAS (under a minute; it needs internet once to fetch two small base images from gcr.io).
+
+services:
+  werd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: werd-server:1.8.0
+    pull_policy: build            # always build here — the image isn't on Docker Hub
+    container_name: werd-server
+    restart: unless-stopped
+    # The NAS's own network, so the server can wake your PC (Wake-on-LAN) and sees the NAS's real addresses.
+    # It listens on port 8080 of the NAS; to use another port, set WERD_ADDR below (e.g. WERD_ADDR=:8090).
+    network_mode: host
+    volumes:
+      - ./data:/data              # database, admin password and AI reading models live here — include it in your NAS backups
+    environment:
+      - TZ=Asia/Riyadh
+      # - WERD_ADDR=:8080
+      # The NAS's addresses, told to every phone so it switches between home Wi-Fi and Tailscale by itself.
+      # Remove the # and put your NAS's home address and its Tailscale address (starts with 100.):
+      # - WERD_URLS=http://192.168.1.20:8080,http://100.101.102.103:8080
+      # Natural read-aloud voice for the whole family (or set the keys later on the admin page → Voices):
+      # - WERD_GEMINI_KEY=AIza...
+      # - WERD_AZURE_KEY=...
+      # - WERD_AZURE_REGION=uaenorth
+      # - WERD_ELEVEN_KEY=...
+      # - WERD_ADMIN_TOKEN=choose-a-long-password     # otherwise one is generated: see data/admin-token.txt
+      # - WERD_TRUST_PROXY=true                        # when the NAS reverse proxy (HTTPS) sits in front

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The library & family server may be the user's own NAS or PC on their home network, reached as
+  http://192.168.x.x:8080 — so plain HTTP is allowed (the app warns when the address isn't https).
+  User-installed certificates are trusted too, for home servers with their own certificate authority.
+  AI providers are always called over https.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

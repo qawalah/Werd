@@ -1,0 +1,29 @@
+# Android / Gradle
+.gradle/
+.kotlin/
+build/
+local.properties
+*.apk
+*.aab
+captures/
+.idea/
+*.iml
+.DS_Store
+
+# signing (the key and its passwords come from CI secrets or ~/.gradle/gradle.properties)
+*.jks
+*.keystore
+
+# screenshot test output (Roborazzi)
+app/screenshots/
+
+# server build output, runtime data and local binaries
+server/dist/
+server/data/
+server/werd-server
+server/*.exe
+*.db
+__pycache__/
+
+# design-tool working folders
+.impeccable/

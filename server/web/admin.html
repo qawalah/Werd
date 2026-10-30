@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08452F">
+<title>لوحة خادم ورد · Werd server</title>
+<link rel="icon" href="/app/icon-192.png">
+<style>
+@font-face { font-family: Tajawal; font-weight: 400; src: url(/app/fonts/tajawal_regular.ttf); font-display: swap; }
+@font-face { font-family: Tajawal; font-weight: 500; src: url(/app/fonts/tajawal_medium.ttf); font-display: swap; }
+@font-face { font-family: Tajawal; font-weight: 700; src: url(/app/fonts/tajawal_bold.ttf); font-display: swap; }
+@font-face { font-family: Amiri; font-weight: 700; src: url(/app/fonts/amiri_bold.ttf); font-display: swap; }
+
+:root {
+  --bg: #FBF7EE; --surface: #FFFFFF; --surface2: #F5EEDD; --ink: #1D2520; --muted: #66655A; --line: #EADFC4; --line2: #F1E8D3;
+  --primary: #0E6B4E; --primary-ink: #FFFFFF; --primary-soft: #DCEDE3; --deep: #08452F; --board-line: #1E5B44; --board-mute: #A9C7B8;
+  --gold: #C19A3E; --gold-soft: #E9D7A6; --gold-ink: #4A3A10; --gold-tint: #F6ECD2;
+  --amber: #A86B12; --amber-tint: #FBEBD0; --red: #B3261E; --red-tint: #F9E1DF; --blue: #3F6489; --blue-tint: #E2EAF3;
+  --shadow: 0 8px 28px rgba(8, 69, 47, .07); --r: 14px; --rail: 92px; --top: 64px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F1513; --surface: #162019; --surface2: #1C2922; --ink: #ECE7DA; --muted: #A3A495; --line: #2A3931; --line2: #22302A;
+    --primary: #4FB08A; --primary-ink: #06261A; --primary-soft: #1D3A2E; --deep: #0A3324; --board-line: #1D4F3C; --board-mute: #9CBDAD;
+    --gold: #D8B65C; --gold-soft: #E3CF94; --gold-ink: #3B2D08; --gold-tint: #3A321C;
+    --amber: #E3A64A; --amber-tint: #3A2C14; --red: #F2B8B5; --red-tint: #3B1E1C; --blue: #9DB9D8; --blue-tint: #1E2A38;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 Tajawal, system-ui, "Segoe UI", Tahoma, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--primary); text-underline-offset: 3px; }
+::selection { background: var(--gold-soft); color: var(--gold-ink); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 8px; }
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.num { font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+svg.i { width: 20px; height: 20px; fill: currentColor; flex: none; }
+
+/* ------------------------------------------------ buttons & fields */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 0 16px; border-radius: 10px; border: 1px solid transparent;
+  background: var(--primary); color: var(--primary-ink); font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .15s, border-color .15s; }
+.btn:hover { background: color-mix(in srgb, var(--primary) 88%, #000); }
+.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--line); font-weight: 500; }
+.btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn.danger { background: var(--surface); color: var(--red); border-color: var(--line); font-weight: 500; }
+.btn.danger:hover { border-color: var(--red); }
+.btn.sm { min-height: 32px; padding: 0 11px; font-size: 14px; border-radius: 9px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.iconbtn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; cursor: pointer; color: var(--muted); }
+.iconbtn:hover { color: var(--primary); border-color: var(--primary); }
+.iconbtn.danger:hover { color: var(--red); border-color: var(--red); }
+.iconbtn svg { width: 18px; height: 18px; fill: currentColor; }
+input[type=text], input[type=password], input[type=search], select, textarea {
+  width: 100%; min-height: 40px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent); }
+input::placeholder { color: var(--muted); opacity: .85; }
+label.f { display: grid; gap: 5px; font-size: 13.5px; color: var(--muted); font-weight: 500; }
+label.f > span { color: var(--ink); font-weight: 700; font-size: 14px; }
+.check { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--primary); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 2px; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 11px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; color: var(--muted); }
+.seg button.on { background: var(--primary); color: var(--primary-ink); }
+
+/* ------------------------------------------------ shell */
+#shell { min-height: 100vh; display: flex; }
+.rail { position: sticky; top: 0; height: 100vh; width: var(--rail); flex: none; background: var(--surface); border-inline-end: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; padding: 16px 0 14px; gap: 4px; }
+.rail a.mark { font: 700 34px/1 Amiri, serif; color: var(--primary); text-decoration: none; padding: 6px 0 18px; width: auto; display: block; }
+.nav a { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 80px; padding: 6px 0; text-decoration: none; color: var(--muted); font-size: 12px; font-weight: 500; border-radius: 12px; }
+.nav a .pill { width: 54px; height: 30px; border-radius: 15px; display: grid; place-items: center; transition: background .15s; }
+.nav a:hover .pill { background: var(--line2); }
+.nav a.on { color: var(--primary); font-weight: 700; }
+.nav a.on .pill { background: var(--primary-soft); }
+.nav .badge { position: relative; }
+.nav .badge::after { content: attr(data-n); position: absolute; top: -6px; inset-inline-end: -10px; min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px;
+  background: var(--red); color: #fff; font-size: 10.5px; line-height: 16px; text-align: center; font-weight: 700; }
+.nav .badge[data-n=""]::after, .nav .badge:not([data-n])::after { display: none; }
+.rail .home { margin-top: auto; }
+main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 10; height: var(--top); display: flex; align-items: center; gap: 12px; padding: 0 28px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(8px); border-bottom: 1px solid transparent; }
+.topbar.scrolled { border-bottom-color: var(--line); }
+.topbar .mmark { display: none; }
+.search { position: relative; flex: 1; max-width: 540px; }
+.search svg { position: absolute; inset-inline-start: 12px; top: 50%; translate: 0 -50%; color: var(--muted); }
+.search input { padding-inline-start: 40px; background: var(--surface); }
+.results { position: absolute; top: calc(100% + 6px); inset-inline: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 6px; max-height: 60vh; overflow: auto; }
+.results a { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ink); }
+.results a:hover, .results a.on { background: var(--surface2); }
+.results small { color: var(--muted); margin-inline-start: auto; font-size: 12.5px; }
+.results .none { padding: 10px; color: var(--muted); font-size: 14px; }
+.topbar .end { margin-inline-start: auto; display: flex; gap: 8px; align-items: center; }
+.content { padding: 8px 28px 48px; display: grid; gap: 18px; width: 100%; max-width: 1480px; }
+.bnav { display: none; }
+
+/* ------------------------------------------------ board (the signature) */
+.board { background: var(--deep); color: #E8EFE9; border-radius: 18px; display: grid; grid-template-columns: minmax(220px, 1.25fr) repeat(5, minmax(0, 1fr));
+  align-items: stretch; padding: 16px; gap: 0; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(8, 69, 47, .16); }
+.board .title { position: relative; padding: 6px 10px 6px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+html[dir=ltr] .board .title { padding: 6px 18px 6px 10px; }
+.board .title::before { content: ""; position: absolute; inset: -16px; inset-inline-end: 0; opacity: .08; background-size: 84px; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23E9D7A6' stroke-width='1.6'%3E%3Crect x='35' y='35' width='50' height='50'/%3E%3Crect x='35' y='35' width='50' height='50' transform='rotate(45 60 60)'/%3E%3Ccircle cx='60' cy='60' r='11'/%3E%3Cpath d='M0 0L25 25M120 0L95 25M0 120L25 95M120 120L95 95'/%3E%3C/g%3E%3C/svg%3E"); }
+.board .title > * { position: relative; }
+.board h1 { margin: 0; font: 700 32px/1.15 Amiri, serif; color: #E9D7A6; }
+html[lang=en] .board h1 { font: 700 26px/1.2 Tajawal, sans-serif; letter-spacing: -.01em; }
+.board .live { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #CFE0D6; }
+.board .live i { width: 8px; height: 8px; border-radius: 50%; background: #5ED19C; animation: beat 1.4s ease-out 1; } /* one pulse per refresh */
+.board .live.off i { background: #E8A39E; animation: none; }
+@keyframes beat { 0% { box-shadow: 0 0 0 0 rgba(94, 209, 156, .45); } 70%, 100% { box-shadow: 0 0 0 9px rgba(94, 209, 156, 0); } }
+.board .machine { font-size: 12.5px; color: var(--board-mute); }
+.board .totals { font-size: 12.5px; color: var(--board-mute); }
+.cell { position: relative; border-inline-start: 1px solid var(--board-line); padding: 10px 12px 8px; text-align: center; display: grid; grid-template-rows: auto auto auto 1fr; justify-items: center;
+  transition: background .5s cubic-bezier(.2, .8, .2, 1), color .5s; border-radius: 0; min-width: 0; }
+.cell .k { font-size: 13px; color: var(--board-mute); font-weight: 500; }
+.cell .v { font-size: clamp(30px, 3.1vw, 44px); line-height: 1.12; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cell .v small { font-size: .45em; font-weight: 500; margin-inline-start: 2px; opacity: .8; }
+.cell .s { font-size: 12.5px; color: var(--board-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.cell svg.trace { width: 100%; height: 26px; margin-top: 6px; align-self: end; overflow: visible; }
+.cell svg.trace polyline { fill: none; stroke: rgba(233, 215, 166, .55); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.cell svg.trace polygon { fill: rgba(233, 215, 166, .08); }
+.cell.lit { background: var(--gold-soft); color: var(--deep); border-radius: 12px; border-color: transparent; }
+.cell.lit + .cell { border-inline-start-color: transparent; }
+.cell.lit .k, .cell.lit .s { color: #5E4A16; }
+.cell.lit svg.trace polyline { stroke: rgba(8, 69, 47, .55); }
+.cell.lit svg.trace polygon { fill: rgba(8, 69, 47, .07); }
+.cell .tag { position: absolute; top: 8px; inset-inline-end: 8px; font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 99px; background: var(--deep); color: var(--gold-soft); }
+.cell .tag.crit { background: #B3261E; color: #fff; }
+.cell.crit:not(.lit) .v { color: #F2B8B5; }
+.cell.lit.crit .v { color: #8C1D18; }
+.dbar { width: 100%; height: 6px; border-radius: 3px; background: rgba(233, 215, 166, .18); margin-top: 10px; align-self: end; overflow: hidden; }
+.dbar i { display: block; height: 100%; background: rgba(233, 215, 166, .7); border-radius: 3px; }
+.cell.lit .dbar { background: rgba(8, 69, 47, .15); } .cell.lit .dbar i { background: rgba(8, 69, 47, .6); }
+.cell.crit .dbar i { background: #E8746C; }
+
+/* ------------------------------------------------ panels */
+.cols { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.ph h2 { margin: 0; font-size: 16px; font-weight: 700; }
+.ph .meta { color: var(--muted); font-size: 13px; }
+.ph .end { margin-inline-start: auto; display: flex; gap: 8px; align-items: center; }
+h3 { font-size: 14.5px; margin: 18px 0 8px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.notice { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 12px; background: var(--red-tint); color: var(--red); font-weight: 500; }
+.notice.amber { background: var(--amber-tint); color: var(--amber); }
+.notice .btn { margin-inline-start: auto; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+.t th { text-align: start; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.t th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+.t th button:hover, .t th button:focus-visible { color: var(--ink); }
+.t th button[aria-sort]::after { content: "▾"; font-size: 10px; }
+.t th button[aria-sort=ascending]::after { content: "▴"; }
+.t td { padding: 10px 8px; border-bottom: 1px solid var(--line2); vertical-align: middle; font-variant-numeric: tabular-nums; }
+.t tr:last-child td { border-bottom: 0; }
+.t td .sub { display: block; color: var(--muted); font-size: 12.5px; }
+.t .act { white-space: nowrap; text-align: end; }
+.scroller { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+.st { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); white-space: nowrap; }
+.st.wait { background: var(--surface2); color: var(--muted); }
+.st.load { background: var(--gold-tint); color: var(--gold-ink); }
+:root .st.load { color: color-mix(in srgb, var(--gold) 55%, var(--ink)); }
+.st.err { background: var(--red-tint); color: var(--red); }
+.st.done { background: var(--surface2); color: var(--muted); }
+.bar { height: 6px; border-radius: 3px; background: var(--surface2); min-width: 90px; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 3px; background: var(--primary); transition: width .6s cubic-bezier(.2, .8, .2, 1); }
+.bar i.gold { background: var(--gold); } .bar i.blue { background: var(--blue); } .bar i.red { background: var(--red); }
+.bar.indet i { width: 35% !important; animation: slide 1.4s ease-in-out infinite; }
+@keyframes slide { 0% { margin-inline-start: -35%; } 100% { margin-inline-start: 100%; } }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid line { stroke: var(--line); stroke-width: 1; }
+.chart text { fill: var(--muted); font: 11px Tajawal, sans-serif; font-variant-numeric: tabular-nums; }
+.chart .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .ln.cpu { stroke: var(--primary); } .chart .ln.mem { stroke: var(--gold); }
+.chart .dot.cpu { fill: var(--primary); } .chart .dot.mem { fill: var(--gold); }
+.legend { gap: 14px !important; font-size: 13px; color: var(--muted); }
+.lg { display: inline-flex; align-items: center; gap: 6px; } .lg i { width: 10px; height: 3px; border-radius: 2px; display: inline-block; } .lg b { color: var(--ink); }
+.empty { padding: 26px 10px; text-align: center; color: var(--muted); font-size: 14px; }
+.empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 11px; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip b { font-weight: 700; color: var(--muted); font-size: 12px; }
+.chip.on { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+.chip.on b { color: inherit; opacity: .8; }
+.chip.err b { color: var(--red); }
+.chip.err.on { background: var(--red); border-color: var(--red); }
+.feed { list-style: none; margin: 0; padding: 0; }
+.feed li { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line2); }
+.feed li:first-child { border-top: 0; }
+.feed .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.feed .ic svg { width: 16px; height: 16px; }
+.feed .ic.ai { background: var(--gold-tint); color: var(--gold); } .feed .ic.voice { background: var(--blue-tint); color: var(--blue); }
+.feed .ic.library { background: var(--primary-soft); color: var(--deep); } .feed .ic.server { background: var(--surface2); color: var(--muted); }
+.feed .ic.error { background: var(--red-tint); color: var(--red); } .feed .ic.warn { background: var(--amber-tint); color: var(--amber); }
+.feed p { margin: 0; font-size: 14px; }
+.feed p b { font-weight: 700; }
+.feed small { display: block; color: var(--muted); font-size: 12.5px; }
+.feed li.error p { color: var(--red); }
+.feed time { color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.feed .x { font-size: 11.5px; font-weight: 700; color: var(--muted); background: var(--surface2); border-radius: 99px; padding: 0 7px; margin-inline-start: 6px; }
+.feed li.more-hidden { display: none; }
+.nowrap { white-space: nowrap; }
+.file { position: relative; display: inline-flex; align-items: center; gap: 10px; }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.file span { color: var(--muted); font-size: 13.5px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.feed li.fresh { animation: fresh 1.6s ease-out; }
+@keyframes fresh { from { background: var(--gold-tint); } to { background: transparent; } }
+.more { text-align: center; padding-top: 8px; }
+
+/* families */
+.fam { padding: 0; overflow: hidden; }
+.fam .ph { padding: 14px 18px 0; }
+.fam .code { font: 700 13px/1 ui-monospace, Menlo, Consolas, monospace; background: var(--surface2); padding: 5px 9px; border-radius: 8px; letter-spacing: .08em; direction: ltr; }
+.fam table { margin-top: 4px; }
+.fam .t td:first-child, .fam .t th:first-child { padding-inline-start: 18px; }
+.fam .t td:last-child, .fam .t th:last-child { padding-inline-end: 18px; }
+.who { display: flex; gap: 10px; align-items: center; }
+.av { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--surface2); color: var(--primary); font-weight: 700; flex: none; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #C9C2AC; margin-inline-end: 6px; vertical-align: middle; }
+.dot.on { background: #2E9E6E; }
+.role { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; padding: 2px; }
+.role button { border: 0; background: none; border-radius: 7px; padding: 3px 10px; font-size: 13px; cursor: pointer; color: var(--muted); font-weight: 500; }
+.role button.on { background: var(--gold-tint); color: var(--gold-ink); font-weight: 700; }
+@media (prefers-color-scheme: dark) { .role button.on { color: var(--gold-soft); } }
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.summary div { padding: 14px 18px; border-inline-start: 1px solid var(--line2); }
+.summary div:first-child { border: 0; }
+.summary b { display: block; font-size: 26px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.summary span { color: var(--muted); font-size: 13px; }
+
+/* settings */
+.subtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 4px; overflow-x: auto; }
+.subtabs button { border: 0; background: none; padding: 10px 14px; cursor: pointer; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.subtabs button.on { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+.form { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 8px 22px; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; direction: ltr; unicode-bidi: isolate; }
+code { background: var(--surface2); padding: 2px 7px; border-radius: 6px; }
+.out { width: 100%; min-height: 160px; font: 19px/1.9 Amiri, serif; direction: rtl; }
+audio { width: 100%; margin-top: 8px; }
+
+/* drawer (book viewer) */
+.drawer { position: fixed; inset: 0; z-index: 30; display: flex; justify-content: flex-end; background: rgba(15, 21, 19, .35); }
+html[dir=rtl] .drawer { justify-content: flex-start; }
+.drawer .sheet { width: min(560px, 100%); height: 100%; background: var(--surface); padding: 20px 22px; overflow: auto; box-shadow: var(--shadow); animation: sheet .28s cubic-bezier(.2, .8, .2, 1); }
+@keyframes sheet { from { transform: translateX(var(--from, 24px)); opacity: 0; } }
+html[dir=rtl] .drawer .sheet { --from: -24px; }
+.lines { list-style: none; padding: 0; margin: 12px 0 0; counter-reset: l; }
+.lines li { padding: 10px 0; border-top: 1px solid var(--line2); font: 19px/1.9 Amiri, serif; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+.lines li span { font: 700 13px Tajawal; color: var(--primary); background: var(--primary-soft); border-radius: 99px; padding: 1px 9px; align-self: start; margin-top: 6px; }
+
+/* login */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login .box { width: min(400px, 100%); display: grid; gap: 16px; }
+.login .head { background: var(--deep); color: #E8EFE9; border-radius: 18px; padding: 22px; position: relative; overflow: hidden; }
+.login .head b { font: 700 40px/1 Amiri, serif; color: #E9D7A6; display: block; margin-bottom: 6px; }
+.login .err { color: var(--red); font-size: 14px; min-height: 20px; }
+.login .foot { display: flex; justify-content: space-between; align-items: center; }
+
+.toast { position: fixed; bottom: 24px; inset-inline-start: 50%; translate: -50% 0; background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 12px; z-index: 40; font-size: 14px; box-shadow: var(--shadow); }
+html[dir=rtl] .toast { translate: 50% 0; }
+
+/* ------------------------------------------------ phone */
+@media (max-width: 1100px) {
+  .board { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .board .title { grid-column: 1 / -1; padding: 4px 6px 14px; flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: 14px; }
+  .board .title::before { inset: -16px -16px 0; }
+  .board .cell:nth-child(2) { border-inline-start: 0; }
+  .cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  :root { --top: 58px; }
+  .rail { display: none; }
+  .topbar { padding: 0 14px; gap: 8px; }
+  .topbar .mmark { display: block; font: 700 26px/1 Amiri, serif; color: var(--primary); text-decoration: none; }
+  .topbar .end .signout span { display: none; }
+  .content { padding: 4px 14px calc(84px + env(safe-area-inset-bottom)); gap: 14px; }
+  .board { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px; row-gap: 8px; }
+  .board h1 { font-size: 26px; }
+  .board .cell { border-inline-start: 0; padding: 8px 6px 6px; }
+  .cell .v { font-size: 28px; }
+  .cell svg.trace { height: 20px; }
+  .cell .tag { position: static; margin-bottom: 3px; }
+  .cell .s { white-space: normal; line-height: 1.3; }
+  .t.jobs tr { grid-template-columns: 1fr auto; }
+  .t.jobs td.c-name, .t.jobs td.c-kind, .t.jobs td.c-prog { grid-column: 1 / -1; }
+  .t.jobs td.c-prog .bar { margin: 6px 0 2px; }
+  .t.jobs td.c-state { justify-self: start; }
+  .t.jobs td.c-start { justify-self: end; }
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary div:nth-child(3) { border-inline-start: 0; }
+  .summary div:nth-child(n+3) { border-top: 1px solid var(--line2); }
+  .panel { padding: 14px; }
+  .t.stack thead { display: none; }
+  .t.stack tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 0; border-bottom: 1px solid var(--line2); }
+  .t.stack td { border: 0; padding: 0; }
+  .t.stack td[data-c=wide] { grid-column: 1 / -1; }
+  .fam .t.stack tr { padding: 10px 14px; }
+  .fam .t.stack td:first-child { padding-inline-start: 0; }
+  .bnav { display: flex; position: fixed; inset: auto 0 0 0; z-index: 20; height: calc(66px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface); border-top: 1px solid var(--line); }
+  .bnav a { flex: 1; width: auto; }
+  .drawer .sheet { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* ------------------------------------------------ dashboard blocks (library, resources, tasks, activity) */
+.blk { display: grid; gap: 14px; }
+.blkt { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.blkh { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 4px 2px; cursor: pointer; color: var(--ink); font: inherit; font-size: 18px; font-weight: 700; }
+.blkh .chev { width: 22px; height: 22px; fill: var(--muted); transition: transform .2s; }
+.blk.closed .chev { transform: rotate(-90deg); } html[dir=rtl] .blk.closed .chev { transform: rotate(90deg); }
+.blkt .hint { font-size: 13px; color: var(--muted); } .blkt .hint a { color: var(--amber); font-weight: 600; }
+.blk.closed .blkb { display: none; }
+.blkb { display: grid; gap: 14px; min-width: 0; }
+.summary.s6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.lib2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.mini { list-style: none; margin: 0; padding: 0; }
+.mini li { display: flex; gap: 10px; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--line2); flex-wrap: wrap; }
+.mini li:first-child { border-top: 0; }
+.mini b { font-weight: 600; } .mini .end { margin-inline-start: auto; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.pill { font-size: 11.5px; padding: 1px 8px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); font-weight: 700; white-space: nowrap; }
+.pill.gold { background: var(--gold-tint); color: var(--gold-ink); } .pill.red { background: var(--red-tint); color: var(--red); }
+.board.g6 { grid-template-columns: minmax(220px, 1.25fr) repeat(6, minmax(0, 1fr)); }
+.chart .ln.gpu { stroke: var(--blue); } .chart .dot.gpu { fill: var(--blue); }
+.dup { border-top: 1px solid var(--line2); padding-top: 12px; margin-top: 12px; }
+.dup:first-child { border: 0; margin: 0; padding: 0; }
+.bigcode { font: 700 38px/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .14em; direction: ltr; text-align: center; background: var(--surface2); border-radius: 12px; padding: 18px 8px; margin: 14px 0; }
+@media (max-width: 1100px) { .board.g6 { grid-template-columns: repeat(6, minmax(0, 1fr)); } .lib2 { grid-template-columns: 1fr; } .summary.s6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .board.g6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .summary.s6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summary.s6 div { border-inline-start: 0; border-top: 1px solid var(--line2); } .summary.s6 div:nth-child(-n+2) { border-top: 0; } }
+/* ------------------------------------------------ the helping PC */
+.pcbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.pcbar .ic { width: 40px; height: 40px; flex: none; border-radius: 11px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.pcbar .ic svg { width: 22px; height: 22px; fill: currentColor; }
+.pcbar.off .ic { background: var(--surface2); color: var(--muted); }
+.pcbar .who { display: grid; gap: 2px; min-width: 0; }
+.pcbar .who b { font-size: 15px; }
+.pcbar .facts { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--muted); font-size: 13px; align-items: center; }
+.pcbar .facts b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.pcbar .btn { margin-inline-start: auto; }
+.meter { display: inline-flex; align-items: center; gap: 6px; }
+.meter .bar { min-width: 56px; width: 64px; }
+pre.log { max-height: 170px; overflow: auto; background: var(--surface2); padding: 8px 10px; border-radius: 8px; font-size: 12px; direction: ltr; white-space: pre-wrap; margin: 10px 0 0; }
+.keyrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.keyrow code { font-size: 15px; padding: 6px 10px; }
+.sep { border: 0; border-top: 1px solid var(--line2); margin: 16px 0; }
+</style>
+</head>
+<body>
+<div id="login" class="login hidden">
+  <form class="box" onsubmit="login(event)">
+    <div class="head"><b>ورد</b><span data-t="loginLead"></span></div>
+    <label class="f"><span data-t="password"></span><input id="pw" type="password" autocomplete="current-password" required></label>
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" type="submit" data-t="signIn"></button>
+    <div class="foot"><a href="/" data-t="backHome"></a><div class="seg lang"></div></div>
+    <p class="muted small" data-t="pwHint"></p>
+  </form>
+</div>
+
+<div id="shell" class="hidden">
+  <nav class="rail nav" aria-label="main">
+    <a class="mark" href="/" aria-label="Werd">ورد</a>
+    <div id="navItems" style="display:contents"></div>
+    <a class="home" href="/"><span class="pill"><svg class="i" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span data-t="home"></span></a>
+  </nav>
+  <main>
+    <header class="topbar" id="topbar">
+      <a class="mmark" href="/">ورد</a>
+      <div class="search">
+        <svg class="i" viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14"/></svg>
+        <input id="q" type="search" autocomplete="off" aria-controls="results">
+        <div id="results" class="results hidden" role="listbox"></div>
+      </div>
+      <div class="end">
+        <div class="seg lang"></div>
+        <button class="btn ghost sm signout" onclick="logout()"><svg class="i" viewBox="0 0 24 24"><path d="M10 17v-3H3v-4h7V7l5 5zm2-15h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-7v-2h7V4h-7z"/></svg><span data-t="signOut"></span></button>
+      </div>
+    </header>
+    <div class="content" id="view"></div>
+  </main>
+  <nav class="bnav nav" id="bnav" aria-label="main"></nav>
+</div>
+
+<script>
+'use strict';
+// ====================================================================== words
+const T = {
+  ar: {
+    loginLead: 'لوحة خادم العائلة', password: 'كلمة مرور الإدارة', signIn: 'دخول', backHome: '→ الصفحة الرئيسية', wrongPw: 'كلمة المرور غير صحيحة',
+    pwHint: 'كلمة المرور في ملف admin-token.txt داخل مجلد البيانات، أو في سجلّ الحاوية عند أول تشغيل.',
+    home: 'الرئيسية', signOut: 'خروج', search: 'ابحث عن شخص أو كتاب أو إعداد…', noResults: 'لا نتائج',
+    dashboard: 'اللوحة', families: 'العائلات', library: 'المكتبة', settings: 'الإعدادات',
+    serverTitle: 'خادم العائلة', running: 'يعمل منذ {0}', unreachable: 'تعذّر الوصول إلى الخادم', version: 'الإصدار {0}',
+    totals: '{0} · {1} · {2}',
+    cpu: 'المعالج', memory: 'الذاكرة', disk: 'القرص', phones: 'الهواتف', requests: 'الطلبات',
+    cores: '{0} أنوية', ofGB: 'من {0}', container: 'حدّ الحاوية', free: '{0} متاحة', lastHour: 'آخر ساعة', perMin: 'في الدقيقة',
+    busyAI: 'يقرأ صفحة', busyVoice: 'يصنع الصوت', busyDl: 'ينزّل نموذجاً', idle: 'هادئ', busyHost: 'برامج أخرى على الجهاز', high: 'مرتفع', full: 'شبه ممتلئ', diskFull: 'القرص شبه ممتلئ: {0} متاحة فقط. احذف ما لا تحتاجه (مثل نماذج القراءة غير المستخدمة) أو وسّع المساحة.', details: 'التفاصيل', modelIn: 'منها {0} للنموذج',
+    loadChart: 'الحمل خلال آخر 15 دقيقة', nowL: 'الآن', minAgoL: 'قبل {0} د', collecting: 'تُجمع القراءات… تظهر بعد دقيقة.', memPct: 'الذاكرة',
+    jobs: 'الأعمال', running_n: '{0} جارية', failed_n: '{0} خطأ', work: 'العمل', kind: 'النوع', progress: 'التقدّم', state: 'الحالة', started: 'بدأ',
+    jobAI: 'قراءة بالذكاء الاصطناعي', jobVoice: 'صوت · {0}', jobDl: 'تنزيل نموذج', pageFor: 'صفحة من {0}',
+    sLoading: 'يحمّل النموذج', sReading: 'يقرأ', sWaiting: 'في الانتظار', sQueued: 'في الانتظار', sRunning: 'يعمل', sDone: 'انتهى', sFailed: 'توقّف', sCancelled: 'أُلغي',
+    sharedAwrad: 'الأوراد المشاركة', searchAwrad: 'ابحث في الأوراد', noAwrad: 'لا أوراد مشاركة', noAwradHint: 'يشارك المستخدمون ورداً من قائمة الورد في التطبيق (⋮ ← مشاركة في المكتبة).', withReminders: 'مع تذكيرات', textOnlyW: 'نص للقراءة',
+    cancel: 'إلغاء', cancelAll: 'إلغاء الكل', cancelAllQ: 'إيقاف كل الأعمال الجارية والمنتظرة؟', cancelledT: 'أُلغي',
+    waitingN: 'تنتظر {0}', noJobs: 'لا أعمال الآن', noJobsHint: 'قراءة الصفحات وتجهيز صوت الكتب وتنزيل النماذج تظهر هنا.',
+    activity: 'النشاط', todayN: '{0} في آخر 24 ساعة', all: 'الكل', kphone: 'الهواتف', kfamily: 'العائلات', klibrary: 'المكتبة', kvoice: 'الأصوات', kai: 'الذكاء الاصطناعي', kerror: 'أخطاء',
+    noActivity: 'لا نشاط بعد', noActivityHint: 'ما تفعله الهواتف والعائلات والمكتبة يظهر هنا.', loadMore: 'المزيد',
+    openReports: '{0} عن كتب في المكتبة', review: 'مراجعة',
+    people: 'أشخاص', familiesN: 'عائلات', parents: 'أولياء', activeToday: 'نشطون اليوم',
+    noFamily: 'بلا عائلة', inviteCode: 'رمز الدعوة', rename: 'إعادة تسمية', name: 'الاسم', role: 'الدور', lastSeen: 'آخر ظهور', sharing: 'المشاركة',
+    parent: 'وليّ', child: 'ابن', shares: 'يشارك تقدّمه', private: 'خاص', remove: 'إزالة من العائلة', removeQ: 'إزالة {0} من العائلة؟',
+    familyNameQ: 'اسم العائلة', personNameQ: 'الاسم', noPeople: 'لا أحد بعد', noPeopleHint: 'يظهر الناس هنا حين تتصل هواتفهم بالخادم.', now: 'الآن',
+    books: 'الكتب', reports: 'البلاغات', searchBooks: 'ابحث في العناوين والمؤلفين…', title: 'العنوان', publisher: 'نشره', madhhab: 'المذهب', visibility: 'الظهور', linesN: 'الأسطر',
+    downloads: 'التنزيلات', public: 'عام', familyOnly: 'للعائلة', hidden: 'مخفي', view: 'عرض', hide: 'إخفاء', show: 'إظهار', del: 'حذف', makeAudio: 'تجهيز الصوت',
+    delQ: 'حذف «{0}» نهائياً؟', resolve: 'تمّت المعالجة', line: 'السطر {0}', noBooks: 'المكتبة فارغة', noBooksHint: 'الكتب التي تُنشر من التطبيق تظهر هنا.', close: 'إغلاق',
+    audioQueued: 'أُضيف إلى الأعمال', mHanafi: 'حنفي', mMaliki: 'مالكي', mShafii: 'شافعي', mHanbali: 'حنبلي', mOther: 'آخر', mGeneral: 'عام',
+    voices: 'الأصوات', aiReading: 'قراءة الصفحات', server: 'الخادم', backup: 'النسخ الاحتياطي',
+    voicesLead: 'صوت طبيعي يقرأ الأوراد لكل الهواتف. يُحفظ كل مقطع هنا فلا يُدفع ثمنه مرتين.', defVoice: 'الصوت الافتراضي', addKey: 'أضف مفتاحاً أولاً',
+    autoGen: 'اصنع صوت الكتاب تلقائياً عند نشره', save: 'حفظ', saved: 'حُفظ', test: 'تجربة', clearClips: 'مسح المقاطع', clearQ: 'مسح كل المقاطع المحفوظة؟',
+    clipsN: '{0} · {1}', soundLib: 'مكتبة الصوت', fromPhones: 'من الهواتف', onServer: 'الخادم', voice: 'الصوت', clips: 'المقاطع', size: 'الحجم',
+    soundEmpty: 'فارغة بعد — تُضاف المقاطع حين تستمع الهواتف أو تشارك أصواتها أو تُجهَّز الكتب.',
+    aiLead: 'نماذج مجانية تقرأ صور صفحات الكتب بالتشكيل، على هذا الخادم بلا إنترنت. تستخدمها الهواتف وتطبيق الويب.',
+    engineOk: 'المحرّك جاهز', engineMissing: 'محرّك الذكاء الاصطناعي غير موجود لهذا النظام ({0}). ضع llama-server في مجلد engine داخل مجلد البيانات.',
+    noRoom: 'يحتاج نحو {0} · المتاح {1}', model: 'النموذج', download: 'تنزيل', default: 'الافتراضي', makeDefault: 'اجعله الافتراضي', removeModel: 'حذف', removeModelQ: 'حذف هذا النموذج؟', loadedNow: 'محمّل الآن',
+    tryPage: 'جرّب صفحة', pickPhoto: 'اختر صورة', read: 'اقرأ', reading: 'يقرأ… أول صفحة تحمّل النموذج وقد تستغرق دقائق',
+    machine: 'الجهاز', system: 'النظام', dataDir: 'مجلد البيانات', dataSize: 'حجم البيانات', modelsSize: 'النماذج', uptime: 'مدة التشغيل',
+    addresses: 'عناوين الخادم للهواتف', addrHint: 'في التطبيق: الإعدادات ← خادم المكتبة والعائلة ← عنوان الخادم.', inDocker: 'داخل Docker',
+    backupLead: 'نسخة كاملة من قاعدة البيانات (الأشخاص والعائلات والكتب والتقدّم). المقاطع الصوتية والنماذج في مجلد البيانات؛ انسخه كاملاً للاحتياط الكامل.',
+    downloadBackup: 'تنزيل النسخة', failed: 'تعذّر: {0}', minAgo: 'قبل {0} د', hAgo: 'قبل {0} س', dAgo: 'قبل {0} يوم', yesterday: 'أمس',
+    days: '{0} يوم', hours: '{0} ساعة', mins: '{0} دقيقة', sec: '{0} ث', gb: '{0} GB', mb: '{0} MB',
+  },
+  en: {
+    loginLead: 'Family server dashboard', password: 'Admin password', signIn: 'Sign in', backHome: '← Home', wrongPw: 'Wrong password',
+    pwHint: 'The password is in admin-token.txt in the data folder, or in the container log on first start.',
+    home: 'Home', signOut: 'Sign out', search: 'Search people, books, settings…', noResults: 'No results',
+    dashboard: 'Dashboard', families: 'Families', library: 'Library', settings: 'Settings',
+    serverTitle: 'Family server', running: 'Running for {0}', unreachable: "Can't reach the server", version: 'Version {0}',
+    totals: '{0} · {1} · {2}',
+    cpu: 'Processor', memory: 'Memory', disk: 'Disk', phones: 'Phones', requests: 'Requests',
+    cores: '{0} cores', ofGB: 'of {0}', container: 'container limit', free: '{0} free', lastHour: 'last hour', perMin: 'per minute',
+    busyAI: 'reading a page', busyVoice: 'making audio', busyDl: 'downloading a model', idle: 'quiet', busyHost: 'other programs on the machine', high: 'high', full: 'nearly full', diskFull: 'The disk is nearly full: only {0} free. Remove what you don\'t need (such as unused reading models) or add space.', details: 'Details', modelIn: '{0} for the model',
+    loadChart: 'Load, last 15 minutes', nowL: 'now', minAgoL: '−{0} min', collecting: 'Collecting readings… the chart appears within a minute.', memPct: 'Memory',
+    jobs: 'Work', running_n: '{0} running', failed_n: '{0} failed', work: 'Work', kind: 'Type', progress: 'Progress', state: 'State', started: 'Started',
+    jobAI: 'AI page reading', jobVoice: 'Audio · {0}', jobDl: 'Model download', pageFor: 'Page from {0}',
+    sLoading: 'Loading model', sReading: 'Reading', sWaiting: 'Waiting', sQueued: 'Queued', sRunning: 'Running', sDone: 'Done', sFailed: 'Stopped', sCancelled: 'Cancelled',
+    sharedAwrad: 'Shared awrad', searchAwrad: 'Search awrad', noAwrad: 'No shared awrad', noAwradHint: 'People share a werd from its menu in the app (⋮ → Share to library).', withReminders: 'with reminders', textOnlyW: 'text to read',
+    cancel: 'Cancel', cancelAll: 'Cancel all', cancelAllQ: 'Stop all running and waiting work?', cancelledT: 'Cancelled',
+    waitingN: '{0} pages waiting', noJobs: 'Nothing running', noJobsHint: 'Page reading, book audio and model downloads show up here.',
+    activity: 'Activity', todayN: '{0} in the last 24 h', all: 'All', kphone: 'Phones', kfamily: 'Families', klibrary: 'Library', kvoice: 'Voices', kai: 'AI', kerror: 'Errors',
+    noActivity: 'No activity yet', noActivityHint: 'What phones, families and the library do appears here.', loadMore: 'Load more',
+    openReports: '{0} about library books', review: 'Review',
+    people: 'People', familiesN: 'Families', parents: 'Parents', activeToday: 'Active today',
+    noFamily: 'Not in a family', inviteCode: 'Invite code', rename: 'Rename', name: 'Name', role: 'Role', lastSeen: 'Last seen', sharing: 'Sharing',
+    parent: 'Parent', child: 'Child', shares: 'Shares progress', private: 'Private', remove: 'Remove from family', removeQ: 'Remove {0} from the family?',
+    familyNameQ: 'Family name', personNameQ: 'Name', noPeople: 'Nobody yet', noPeopleHint: 'People appear here once their phones connect to the server.', now: 'now',
+    books: 'Books', reports: 'Reports', searchBooks: 'Search titles and authors…', title: 'Title', publisher: 'Published by', madhhab: 'Madhhab', visibility: 'Visibility', linesN: 'Lines',
+    downloads: 'Downloads', public: 'Public', familyOnly: 'Family', hidden: 'Hidden', view: 'View', hide: 'Hide', show: 'Show', del: 'Delete', makeAudio: 'Make audio',
+    delQ: 'Delete “{0}” for good?', resolve: 'Resolved', line: 'Line {0}', noBooks: 'The library is empty', noBooksHint: 'Books published from the app appear here.', close: 'Close',
+    audioQueued: 'Added to Work', mHanafi: 'Hanafi', mMaliki: 'Maliki', mShafii: "Shafi'i", mHanbali: 'Hanbali', mOther: 'Other', mGeneral: 'General',
+    voices: 'Voices', aiReading: 'AI page reading', server: 'Server', backup: 'Backup',
+    voicesLead: "A natural voice for every phone. Each clip is kept here, so it's only paid for once.", defVoice: 'Default voice', addKey: 'Add a key first',
+    autoGen: "Make a book's audio automatically when it's published", save: 'Save', saved: 'Saved', test: 'Test', clearClips: 'Clear clips', clearQ: 'Clear every saved clip?',
+    clipsN: '{0} · {1}', soundLib: 'Sound library', fromPhones: 'from phones', onServer: 'server', voice: 'Voice', clips: 'Clips', size: 'Size',
+    soundEmpty: 'Empty so far — clips are added as phones listen, share their voices, or books are prepared.',
+    aiLead: 'Free models that read photos of book pages, tashkeel included, on this server with no internet. Phones and the web app use them.',
+    engineOk: 'Engine ready', engineMissing: "The AI engine isn't bundled for this system ({0}). Put llama-server in the data folder's engine folder.",
+    noRoom: 'Needs about {0} · {1} free', model: 'Model', download: 'Download', default: 'Default', makeDefault: 'Make default', removeModel: 'Remove', removeModelQ: 'Remove this model?', loadedNow: 'loaded now',
+    tryPage: 'Try a page', pickPhoto: 'Choose a photo', read: 'Read', reading: 'Reading… the first page loads the model and can take a few minutes',
+    machine: 'Machine', system: 'System', dataDir: 'Data folder', dataSize: 'Data size', modelsSize: 'Models', uptime: 'Uptime',
+    addresses: 'Server addresses for phones', addrHint: 'In the app: Settings → Library & family server → Server address.', inDocker: 'in Docker',
+    backupLead: 'A full copy of the database (people, families, books, progress). Voice clips and models live in the data folder; copy it all for a complete backup.',
+    downloadBackup: 'Download backup', failed: 'Failed: {0}', minAgo: '{0} min ago', hAgo: '{0} h ago', dAgo: '{0} d ago', yesterday: 'yesterday',
+    days: '{0} days', hours: '{0} h', mins: '{0} min', sec: '{0} s', gb: '{0} GB', mb: '{0} MB',
+  },
+};
+Object.assign(T.ar, {
+  pcHelper: 'الحاسوب المساعد', pcTitle: 'حاسوب يساعد هذا الخادم', pcStart: 'اسمح لحاسوب بمساعدة هذا الخادم',
+  pcLead: 'حاسوب أقوى ببطاقة رسومات يقرأ الصفحات ويصنع الأصوات لهذا الخادم حين يكون مستيقظاً. تبقى البيانات كلها هنا، والحاسوب هو من يطلب العمل، فلا يحتاج Windows إلى فتح أي منفذ.',
+  pcKey: 'مفتاح الحاسوب', newKey: 'مفتاح جديد', newKeyQ: 'إنشاء مفتاح جديد؟ سيتوقف الحاسوب عن المساعدة حتى تضع المفتاح الجديد فيه.', copy: 'نسخ', copied: 'نُسخ',
+  pcSteps: 'على الحاسوب: افتح لوحة «ورد» فيه ← الإعدادات ← الحاسوب المساعد ← «ساعد خادماً آخر»، والصق عنوان هذا الخادم والمفتاح.', thisAddr: 'عنوان هذا الخادم:',
+  pcNever: 'لم يتصل حاسوب بعد', pcOnline: 'مستيقظ ويساعد', pcAsleep: 'نائم أو غير متصل · آخر ظهور {0}', pcAsleepShort: 'نائم الآن', pcNoModels: 'لا نماذج بعد',
+  pcReading: 'يقرأ صفحة', pcVoice: 'يصنع صوتاً', onPCshort: 'الحاسوب', jobAIpc: 'قراءة على الحاسوب', jobVoicePC: 'صوت على الحاسوب', jobInstall: 'تثبيت',
+  preferOn: 'أرسل قراءة الصفحات إلى الحاسوب كلما كان مستيقظاً (أسرع بكثير)', wakeOn: 'أيقظ الحاسوب حين يُحتاج إليه: صفحة لا يقرؤها هذا الخادم، أو صوت كتاب بصوت الحاسوب',
+  macL: 'عنوان بطاقة الشبكة (MAC)', macAuto: 'عُرف تلقائياً من الحاسوب', macHint: 'يجب تفعيل Wake-on-LAN في إعدادات الحاسوب وبطاقة الشبكة.', macDocker: 'وفي Docker يحتاج الإيقاظ إلى network_mode: host (ملف docker-compose.yml الجديد يضبطه).',
+  wakeNow: 'أيقظه الآن', wakeSent: 'أُرسلت إشارة الإيقاظ', dlOnPC: 'نزّل على الحاسوب', dlStarted: 'بدأ التنزيل على الحاسوب',
+  helpOther: 'ساعد خادماً آخر', helpLead: 'اجعل هذا الحاسوب يعمل لخادم العائلة (الـNAS): يقرأ الصفحات ويصنع الأصوات حين يكون مستيقظاً، ثم ينام كالمعتاد.',
+  mainAddr: 'عنوان الخادم الرئيسي', mainAddrHint: 'يمكنك وضع أكثر من عنوان بينها فاصلة: عنوان المنزل وعنوان Tailscale. المفتاح في لوحة الخادم الرئيسي ← الإعدادات ← الحاسوب المساعد.',
+  helpOn: 'ساعد ذلك الخادم', cConnected: 'متصل · أنجز {1}', cError: 'غير متصل: {0}', cOff: 'متوقف', gpuL: 'بطاقة الرسومات', gpuUse: 'البطاقة', vram: 'ذاكرتها',
+  localVoices: 'أصوات على هذا الجهاز', localLead: 'أصوات بلا إنترنت ولا مفاتيح. Piper خفيف يعمل على معالج الـNAS، وصوت بطاقة الرسومات أطبع ويستطيع تقليد تسجيل قصير.',
+  install: 'تثبيت', installed: 'مثبّت', piperNA: 'أصوات Piper تعمل على خادم Linux أو Docker (الـNAS)؛ أما الحاسوب فيقدّم صوت بطاقة الرسومات.',
+  gpuVoice: 'صوت بطاقة الرسومات · Chatterbox', gpuVoiceLead: 'نموذج Chatterbox المتعدد اللغات (Resemble AI، رخصة MIT) على {0}. يُثبَّت مع Python خاص به في مجلد البيانات (نحو 6 GB)، ويقرأ بصوت راوٍ عربي أو بصوت عيّنة تضيفها.',
+  pcOffers: 'يقدّم حاسوبك: {0}', refs: 'عيّنات الأصوات', refsLead: 'تسجيل واضح من 5 إلى 15 ثانية لقارئ بالعربية، بلا موسيقى. يقلّده صوت بطاقة الرسومات. استخدم تسجيلات رضي أصحابها بذلك.',
+  refName: 'اسم الصوت', pickAudio: 'اختر تسجيلاً', addRef: 'أضف', refNeed: 'اكتب اسماً واختر تسجيلاً', refShort: 'التسجيل أقصر من 3 ثوانٍ', refDelQ: 'حذف هذه العيّنة؟',
+  refsEmpty: 'لا عيّنات بعد — الراوي العربي متاح دائماً.', gpuRead: 'القراءة على بطاقة الرسومات', gpuReadLead: 'نسخة CUDA من محرّك القراءة (llama.cpp) تقرأ الصفحة في ثوانٍ بدل دقائق على {0}.', gpuReadOn: 'على بطاقة الرسومات',
+  ph_downloading: 'ينزّل', ph_unpacking: 'يفكّ الملفات', ph_python: 'يثبّت Python', ph_venv: 'يجهّز البيئة', ph_torch: 'يثبّت PyTorch (نحو 2.5 GB)', ph_chatterbox: 'يثبّت Chatterbox', ph_model: 'ينزّل نموذج الصوت (نحو 3 GB)', ph_installing: 'يثبّت',
+});
+Object.assign(T.en, {
+  pcHelper: 'PC helper', pcTitle: 'A PC that helps this server', pcStart: 'Let a PC help this server',
+  pcLead: 'A stronger PC with a graphics card reads pages and makes voices for this server while it is awake. All the data stays here, and the PC asks for work itself, so Windows needs no open port.',
+  pcKey: 'PC key', newKey: 'New key', newKeyQ: 'Make a new key? The PC stops helping until you give it the new key.', copy: 'Copy', copied: 'Copied',
+  pcSteps: "On the PC: open its Werd dashboard → Settings → PC helper → “Help another server”, then paste this server's address and the key.", thisAddr: "This server's address:",
+  pcNever: 'No PC has connected yet', pcOnline: 'Awake and helping', pcAsleep: 'Asleep or offline · last seen {0}', pcAsleepShort: 'asleep now', pcNoModels: 'no models yet',
+  pcReading: 'reading a page', pcVoice: 'making audio', onPCshort: 'PC', jobAIpc: 'Page reading on the PC', jobVoicePC: 'Audio on the PC', jobInstall: 'Install',
+  preferOn: 'Send page reading to the PC whenever it is awake (much faster)', wakeOn: "Wake the PC when it's needed: a page this server can't read, or a book's audio in the PC's voice",
+  macL: 'Network card (MAC)', macAuto: 'learned from the PC', macHint: "Wake-on-LAN must be on in the PC's settings and network card.", macDocker: 'In Docker, waking needs network_mode: host (the new docker-compose.yml sets it).',
+  wakeNow: 'Wake it now', wakeSent: 'Wake signal sent', dlOnPC: 'Download on the PC', dlStarted: 'Download started on the PC',
+  helpOther: 'Help another server', helpLead: 'Let this PC work for the family server (the NAS): it reads pages and makes voices while awake, then sleeps as usual.',
+  mainAddr: "Main server's address", mainAddrHint: "List more than one, separated by commas: the home address and the Tailscale one. The key is on the main server's dashboard → Settings → PC helper.",
+  helpOn: 'Help that server', cConnected: 'Connected · {1} done', cError: 'Not connected: {0}', cOff: 'Off', gpuL: 'Graphics card', gpuUse: 'GPU', vram: 'VRAM',
+  localVoices: 'Voices on this machine', localLead: 'Voices with no internet and no keys. Piper is light enough for a NAS processor; the graphics-card voice sounds more natural and can imitate a short recording.',
+  install: 'Install', installed: 'Installed', piperNA: 'Piper voices run on the Linux/Docker server (the NAS); the PC offers the graphics-card voice.',
+  gpuVoice: 'Graphics-card voice · Chatterbox', gpuVoiceLead: 'Chatterbox Multilingual (Resemble AI, MIT licence) on your {0}. Installs with its own Python in the data folder (about 6 GB) and reads as an Arabic narrator or in the voice of a sample you add.',
+  pcOffers: 'Your PC offers: {0}', refs: 'Voice samples', refsLead: 'A clear 5–15 second recording of someone reading Arabic, with no music. The graphics-card voice imitates it. Use recordings whose speakers agree to it.',
+  refName: 'Voice name', pickAudio: 'Choose a recording', addRef: 'Add', refNeed: 'Type a name and choose a recording', refShort: 'The recording is shorter than 3 seconds', refDelQ: 'Delete this sample?',
+  refsEmpty: 'No samples yet — the Arabic narrator is always there.', gpuRead: 'Read on the graphics card', gpuReadLead: 'The CUDA build of the reading engine (llama.cpp) reads a page in seconds instead of minutes on your {0}.', gpuReadOn: 'on the graphics card',
+  ph_downloading: 'Downloading', ph_unpacking: 'Unpacking', ph_python: 'Installing Python', ph_venv: 'Preparing', ph_torch: 'Installing PyTorch (about 2.5 GB)', ph_chatterbox: 'Installing Chatterbox', ph_model: 'Downloading the voice model (about 3 GB)', ph_installing: 'Installing',
+});
+let lang = (() => { try { return localStorage.getItem('werdLang') || 'ar'; } catch { return 'ar'; } })();
+// counted nouns: Arabic needs one / two / few (3–10) / many (11–99) / other
+Object.assign(T.ar, {
+  blkLibrary: 'المكتبة والناس', blkResources: 'موارد الخادم', blkTasks: 'الأعمال', blkActivity: 'النشاط',
+  awradN: 'أوراد مفردة', downloadsN: 'تنزيلات', activeWeek: 'نشطون هذا الأسبوع', recent: 'أُضيف حديثاً', topSharers: 'الأكثر مشاركة', noRecent: 'لم يُشارك شيء بعد.',
+  kBook: 'كتاب', kWerd: 'ورد', dbSize: 'قاعدة البيانات {0}', dupNames: 'أسماء لأكثر من حساب: {0} — راجعها', withPw: '{0} بكلمة مرور', all2: 'الكل',
+  gpu: 'البطاقة', gpuTemp: '{0}°', gpuMem: '{0} من {1} GB', gpuLine: 'البطاقة',
+  cpuFallback: 'القراءة على المعالج لا على بطاقة الرسومات: {0}', partialCard: 'جزء من النموذج على المعالج: {0}', onCardOk: 'النموذج على البطاقة ({0} طبقة)', pcCpuFallback: 'الحاسوب يقرأ على المعالج لا على البطاقة',
+  pw: 'الدخول', pwSet: 'بكلمة مرور', pwNone: 'بلا كلمة مرور', signinCode: 'رمز دخول', signinCodeShow: 'أعطِ {0} هذا الرمز:', signinCodeHow: 'في التطبيق: الإعدادات ← الحساب ← «نسيت كلمة المرور» ← أدخل الرمز. صالح يوماً واحداً ولمرة واحدة، ثم يختار كلمة مرور جديدة.',
+  dupTitle: 'الاسم نفسه لأكثر من حساب', dupLead: 'سجّل الشخص نفسه أكثر من مرة قبل وجود كلمات المرور. اختر الحساب الذي يبقى ثم ادمج: تنتقل إليه الكتب والأوراد والعائلة والسجل، وتبقى الهواتف مسجّلة.',
+  keepThis: 'يبقى', mergeInto: 'دمج في المختار', mergeQ: 'دمج {0} في «{1}»؟ لا يمكن التراجع.', created: 'أُنشئ', sharedN: 'شارك {0}', merged: 'دُمجت الحسابات',
+  addModel: 'إضافة نموذج', addModelLead: 'أي نموذج رؤية بصيغة GGUF مع ملف الإسقاط (mmproj) الخاص به: من رابطين يُنزَّلان الآن، أو من ملفين موجودين على هذا الجهاز.', byLink: 'من روابط', byFile: 'من ملفات على هذا الجهاز',
+  modelName: 'اسم النموذج', modelUrl: 'رابط النموذج (.gguf)', projUrl: 'رابط ملف الإسقاط (mmproj .gguf)', modelPath: 'مسار ملف النموذج على الخادم', projPath: 'مسار ملف الإسقاط على الخادم',
+  promptL: 'التعليمات للنموذج', promptArabic: 'انسخ النص العربي بالتشكيل (للنماذج العامة)', promptQari: 'Free OCR. (لنماذج QARI الحديثة)', promptOwn: 'تعليمات خاصة…', add: 'إضافة', addedT: 'أُضيف النموذج',
+  yours: 'من إضافتك', secsPage: '{0} ث للصفحة', fitsCard: 'يتّسع في البطاقة', tooBigCard: 'أكبر من ذاكرة البطاقة', removeCustomQ: 'إزالة النموذج من القائمة؟ ملفاتك على الجهاز لا تُحذف.',
+});
+Object.assign(T.en, {
+  blkLibrary: 'Library and people', blkResources: 'Server resources', blkTasks: 'Work', blkActivity: 'Activity',
+  awradN: 'Single awrad', downloadsN: 'Downloads', activeWeek: 'Active this week', recent: 'Recently added', topSharers: 'Who shares most', noRecent: 'Nothing shared yet.',
+  kBook: 'Book', kWerd: 'Werd', dbSize: 'database {0}', dupNames: 'Names with more than one account: {0} — review', withPw: '{0} with a password', all2: 'All',
+  gpu: 'GPU', gpuTemp: '{0}°C', gpuMem: '{0} of {1} GB', gpuLine: 'GPU',
+  cpuFallback: 'Reading runs on the processor, not the graphics card: {0}', partialCard: 'Part of the model runs on the processor: {0}', onCardOk: 'model on the card ({0} layers)', pcCpuFallback: 'the PC reads on its processor, not the card',
+  pw: 'Sign-in', pwSet: 'Password', pwNone: 'No password', signinCode: 'Sign-in code', signinCodeShow: 'Give {0} this code:', signinCodeHow: 'In the app: Settings → Account → “Forgot password” → enter the code. It works once, for one day, and then they choose a new password.',
+  dupTitle: 'Same name, more than one account', dupLead: 'The same person signed up more than once before passwords existed. Choose the account to keep, then merge: books, awrad, family and history move to it, and the phones stay signed in.',
+  keepThis: 'Keep', mergeInto: 'Merge into the chosen one', mergeQ: 'Merge {0} into “{1}”? This can’t be undone.', created: 'Created', sharedN: 'shared {0}', merged: 'Accounts merged',
+  addModel: 'Add a model', addModelLead: 'Any vision model as a GGUF file with its projector (mmproj): from two links, downloaded now, or from two files already on this machine.', byLink: 'From links', byFile: 'From files on this machine',
+  modelName: 'Model name', modelUrl: 'Model link (.gguf)', projUrl: 'Projector link (mmproj .gguf)', modelPath: 'Model file path on the server', projPath: 'Projector file path on the server',
+  promptL: 'Instruction for the model', promptArabic: 'Transcribe the Arabic text with tashkeel (general models)', promptQari: 'Free OCR. (recent QARI models)', promptOwn: 'My own instruction…', add: 'Add', addedT: 'Model added',
+  yours: 'Added by you', secsPage: '{0} s per page', fitsCard: 'fits on the card', tooBigCard: 'bigger than the card’s memory', removeCustomQ: 'Remove the model from the list? Your own files on this machine are not deleted.',
+});
+const PL = {
+  ar: {
+    report: ['{n} بلاغ مفتوح', 'بلاغ مفتوح واحد', 'بلاغان مفتوحان', '{n} بلاغات مفتوحة', '{n} بلاغاً مفتوحاً'],
+    person: ['{n} شخص', 'شخص واحد', 'شخصان', '{n} أشخاص', '{n} شخصاً'],
+    family: ['{n} عائلة', 'عائلة واحدة', 'عائلتان', '{n} عائلات', '{n} عائلة'],
+    book: ['{n} كتاب', 'كتاب واحد', 'كتابان', '{n} كتب', '{n} كتاباً'],
+    line: ['{n} سطر', 'سطر واحد', 'سطران', '{n} أسطر', '{n} سطراً'],
+    page: ['{n} صفحة', 'صفحة واحدة', 'صفحتان', '{n} صفحات', '{n} صفحة'],
+    day: ['{n} يوم', 'يوم واحد', 'يومان', '{n} أيام', '{n} يوماً'],
+    hour: ['{n} ساعة', 'ساعة واحدة', 'ساعتان', '{n} ساعات', '{n} ساعة'],
+    minute: ['{n} دقيقة', 'دقيقة واحدة', 'دقيقتان', '{n} دقائق', '{n} دقيقة'],
+    char: ['{n} حرف', 'حرف واحد', 'حرفان', '{n} أحرف', '{n} حرفاً'],
+    clip: ['{n} مقطع', 'مقطع واحد', 'مقطعان', '{n} مقاطع', '{n} مقطعاً'],
+  },
+  en: {
+    report: ['{n} open reports', '{n} open report'], person: ['{n} people', '{n} person'], family: ['{n} families', '{n} family'], book: ['{n} books', '{n} book'],
+    line: ['{n} lines', '{n} line'], page: ['{n} pages', '{n} page'], day: ['{n} days', '{n} day'], hour: ['{n} h', '{n} h'], minute: ['{n} min', '{n} min'],
+    char: ['{n} characters', '{n} character'], clip: ['{n} clips', '{n} clip'],
+  },
+};
+const pl = (n, k) => { const f = PL[lang][k]; const c = new Intl.PluralRules(lang).select(n);
+  const i = lang === 'ar' ? { zero: 0, one: 1, two: 2, few: 3, many: 4, other: 0 }[c] : (c === 'one' ? 1 : 0);
+  return (f[i] || f[0]).replace('{n}', Number(n).toLocaleString('en')); };
+const t = (k, ...a) => (T[lang][k] ?? T.en[k] ?? k).replace(/\{(\d)\}/g, (_, i) => a[+i] ?? '');
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (s, r = document) => r.querySelector(s);
+const fmt = (n, d = 0) => Number(n).toLocaleString('en', { maximumFractionDigits: d, minimumFractionDigits: d });
+const gb = (b) => b >= 1e9 ? t('gb', fmt(b / 1e9, b >= 1e10 ? 0 : 1)) : t('mb', fmt(b / 1e6, 0));
+const hm = (ms) => { const d = new Date(ms); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const ago = (ms) => { if (!ms) return '—'; const m = Math.round((Date.now() - ms) / 60000); if (m < 2) return t('now'); if (m < 60) return t('minAgo', m);
+  const h = Math.round(m / 60); if (h < 24) return t('hAgo', h); const d = Math.round(h / 24); return d === 1 ? t('yesterday') : t('dAgo', d); };
+const span = (ms) => { if (ms < 60000) return t('sec', Math.max(0, Math.round(ms / 1000))); const m = Math.floor(ms / 60000); if (m < 60) return pl(m, 'minute'); const h = Math.floor(m / 60); if (h < 48) return pl(h, 'hour'); return pl(Math.floor(h / 24), 'day'); };
+const when = (ms) => (Date.now() - ms < 20 * 3600e3 ? hm(ms) : new Date(ms).toLocaleDateString(lang === 'ar' ? 'ar-u-nu-latn' : 'en', { day: 'numeric', month: 'short' }));
+
+const IC = {
+  dashboard: 'M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z',
+  families: 'M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3m-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3m0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13m8 0h-1a4 4 0 0 1 2 3.5V19h6v-2.5c0-2.3-4.7-3.5-7-3.5',
+  library: 'M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2M6 4h5v8l-2.5-1.5L6 12z',
+  settings: 'M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3h-4l-.3 2.9a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1L11 21h4l.3-2.9a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 3.5-3.5 3.5 3.5 0 0 1-3.5 3.5',
+  home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  phone: 'M17 1H7a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2m0 18H7V5h10z',
+  family: 'M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3m-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3m0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13',
+  book: 'M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2',
+  voice: 'M12 3v10.6A4 4 0 1 0 14 17V7h4V3z',
+  ai: 'M4 4h16v12H5.2L4 17.2zm4 5h8V7H8zm0 4h5v-2H8z',
+  server: 'M4 4h16v6H4zm0 10h16v6H4zm3-8v2h2V6zm0 10v2h2v-2z',
+  error: 'M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z',
+  eye: 'M12 5C7 5 2.7 8.1 1 12.5 2.7 16.9 7 20 12 20s9.3-3.1 11-7.5C21.3 8.1 17 5 12 5m0 12.5a5 5 0 1 1 5-5 5 5 0 0 1-5 5m0-8a3 3 0 1 0 3 3 3 3 0 0 0-3-3',
+  eyeoff: 'M12 7a5 5 0 0 1 5 5 4.9 4.9 0 0 1-.4 1.9l2.9 2.9A11.8 11.8 0 0 0 23 12.5C21.3 8.1 17 5 12 5a11.6 11.6 0 0 0-4 .7l2.2 2.1A4.9 4.9 0 0 1 12 7M2 4.3l2.3 2.3.4.4A11.8 11.8 0 0 0 1 12.5C2.7 16.9 7 20 12 20a11.8 11.8 0 0 0 4.4-.8l.4.4 2.9 2.9 1.3-1.3L3.3 3zM7.5 9.8 9.1 11.4a2.8 2.8 0 0 0-.1.6 3 3 0 0 0 3 3 2.8 2.8 0 0 0 .6-.1l1.6 1.6a5 5 0 0 1-7.2-6.4',
+  del: 'M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z',
+  speaker: 'M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4M14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6',
+  edit: 'M3 17.2V21h3.8l11-11-3.8-3.8zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.8 3.8z',
+  person: 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4m0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4',
+};
+Object.assign(IC, {
+  pc: 'M21 3H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h7v2H8v2h8v-2h-2v-2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 13H3V5h18z',
+  power: 'M13 3h-2v10h2zm4.8 2.2-1.4 1.4A7 7 0 1 1 7.6 6.6L6.2 5.2A9 9 0 1 0 17.8 5.2',
+  copy: 'M16 1H4a2 2 0 0 0-2 2v14h2V3h12zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m0 16H8V7h11z',
+  key: 'M7 14a2 2 0 1 1 2-2 2 2 0 0 1-2 2m5.6-4A6 6 0 1 0 12.6 14H17v4h4v-4h2v-4z',
+  gpu: 'M15 9H9v6h6zm-2 4h-2v-2h2zm8-2V9h-2V7a2 2 0 0 0-2-2h-2V3h-2v2h-2V3H9v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2zm-4 6H7V7h10z',
+});
+const icon = (k, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[k] || IC.server}"/></svg>`;
+const TABS = ['dashboard', 'families', 'library', 'settings'];
+
+// ====================================================================== api
+let token = (() => { try { return sessionStorage.getItem('werdAdmin') || ''; } catch { return ''; } })();
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+  if (r.status === 401) { showLogin(); throw new Error('unauthorized'); }
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error?.message || r.statusText);
+  return (r.headers.get('content-type') || '').includes('json') ? r.json() : r;
+}
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; el.setAttribute('role', 'status');
+  document.body.append(el); setTimeout(() => el.remove(), 2600);
+}
+const guard = (fn) => async (...a) => { try { await fn(...a); } catch (e) { if (e.message !== 'unauthorized') toast(t('failed', e.message)); } };
+
+// ====================================================================== shell
+function applyLang() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.title = lang === 'ar' ? 'لوحة خادم ورد' : 'Werd server dashboard';
+  document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+  $('#q').placeholder = t('search');
+  document.querySelectorAll('.seg.lang').forEach((s) => {
+    s.innerHTML = `<button type="button" class="${lang === 'ar' ? 'on' : ''}" data-l="ar">عربي</button><button type="button" class="${lang === 'en' ? 'on' : ''}" data-l="en">EN</button>`;
+    s.onclick = (e) => { const b = e.target.closest('[data-l]'); if (!b || b.dataset.l === lang) return; lang = b.dataset.l; try { localStorage.setItem('werdLang', lang); } catch {} applyLang(); route(); };
+  });
+  const items = TABS.map((k) => `<a href="#/${k}" data-tab="${k}"><span class="pill ${k === 'library' ? 'badge' : ''}" ${k === 'library' && state.reports ? `data-n="${state.reports}"` : ''}>${icon(k)}</span><span>${t(k)}</span></a>`).join('');
+  $('#navItems').innerHTML = items;
+  $('#bnav').innerHTML = items + `<a href="/">${'<span class="pill">' + icon('home') + '</span>'}<span>${t('home')}</span></a>`;
+  markNav();
+}
+function markNav() {
+  const cur = (location.hash.match(/^#\/(\w+)/) || [])[1] || 'dashboard';
+  document.querySelectorAll('.nav a[data-tab]').forEach((a) => a.classList.toggle('on', a.dataset.tab === cur));
+  document.querySelectorAll('.nav a[data-tab]').forEach((a) => a.toggleAttribute('aria-current', a.dataset.tab === cur));
+}
+function showLogin() { stopPoll(); $('#shell').classList.add('hidden'); $('#login').classList.remove('hidden'); applyLang(); setTimeout(() => $('#pw').focus(), 50); }
+async function login(e) {
+  e.preventDefault(); token = $('#pw').value.trim(); $('#loginErr').textContent = '';
+  try { await api('/admin/api/stats'); try { sessionStorage.setItem('werdAdmin', token); } catch {} start(); }
+  catch { $('#loginErr').textContent = t('wrongPw'); }
+}
+function logout() { token = ''; try { sessionStorage.removeItem('werdAdmin'); } catch {} location.href = '/'; }
+function start() { $('#login').classList.add('hidden'); $('#shell').classList.remove('hidden'); applyLang(); route(); }
+const state = { reports: 0, dash: null, kind: '', families: null, books: null, lastId: 0, shown: 12 };
+window.addEventListener('hashchange', route);
+window.addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrollY > 4), { passive: true });
+
+let pollTimer = null;
+function stopPoll() { clearTimeout(pollTimer); pollTimer = null; }
+function route() {
+  stopPoll(); markNav();
+  const [, tab = 'dashboard', sub = ''] = location.hash.match(/^#\/(\w+)\/?(\w*)/) || [];
+  const view = $('#view');
+  ({ dashboard: dashView, families: famView, library: libView, settings: setView }[tab] || dashView)(view, sub);
+  view.focus?.();
+}
+
+// ====================================================================== dashboard
+// the dashboard's blocks, in this order: what the people use first, then the machine, then the work; each can be folded
+const BLK = (() => { try { return JSON.parse(localStorage.getItem('werdBlocks') || '{}'); } catch { return {}; } })();
+const blk = (id, title, body) => `<section class="blk ${BLK[id] ? 'closed' : ''}" data-blk="${id}"><div class="blkt"><button type="button" class="blkh" aria-expanded="${!BLK[id]}" aria-controls="b-${id}"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>${title}</button><span class="hint" id="m-${id}"></span></div><div class="blkb" id="b-${id}">${body}</div></section>`;
+function dashView(view) {
+  view.innerHTML = `<div id="alerts" style="display:grid;gap:10px"></div>
+  ${blk('library', t('blkLibrary'), `<div class="summary s6" id="libSum"></div><div class="lib2"><section class="panel"><div class="ph"><h2>${t('recent')}</h2><a class="end small" href="#/library">${t('details')}</a></div><ul class="mini" id="recent"></ul></section>
+    <section class="panel"><div class="ph"><h2>${t('topSharers')}</h2><a class="end small" href="#/families">${t('families')}</a></div><ul class="mini" id="sharers"></ul></section></div>`)}
+  ${blk('resources', t('blkResources'), `<section class="board" id="board" aria-live="polite"></section><div id="gpuWarn" style="display:grid;gap:10px"></div><div id="pcbar" class="pcbar hidden"></div>
+    <section class="panel"><div class="ph"><h2>${t('loadChart')}</h2><span class="end legend" id="legend"></span></div><div id="chart"></div></section>`)}
+  ${blk('tasks', t('blkTasks'), `<section class="panel"><div class="ph"><span class="meta" id="jobsMeta"></span></div><div id="jobs"></div></section>`)}
+  ${blk('activity', t('blkActivity'), `<section class="panel"><div class="ph"><span class="meta" id="actMeta"></span></div><div class="chips" id="chips"></div><ul class="feed" id="feed"></ul><div class="more" id="more"></div></section>`)}`;
+  view.querySelectorAll('.blkh').forEach((b) => b.onclick = () => {
+    const sec = b.closest('.blk'), closed = !sec.classList.contains('closed');
+    sec.classList.toggle('closed', closed); b.setAttribute('aria-expanded', String(!closed)); BLK[sec.dataset.blk] = closed;
+    try { localStorage.setItem('werdBlocks', JSON.stringify(BLK)); } catch {}
+    if (!closed && state.dash) renderChart(state.dash);
+  });
+  state.lastId = 0; state.shown = 12;
+  const tick = guard(async () => {
+    const d = await api('/admin/api/dashboard' + (state.kind ? '?kind=' + state.kind : ''));
+    state.dash = d; state.reports = d.stats.openReports; state.diskFree = d.system.diskTotal ? d.system.diskTotal - d.system.diskUsed : Infinity;
+    const badge = document.querySelectorAll('.nav .badge'); badge.forEach((b) => b.dataset.n = d.stats.openReports || '');
+    renderLibrary(d); renderBoard(d); renderGpuWarn(d); renderPC(d); renderAlerts(d); renderJobs(d); renderChart(d); renderFeed(d);
+  });
+  state.tick = tick;
+  const loop = async () => { if (!document.hidden) await tick(); pollTimer = setTimeout(loop, 5000); };
+  loop();
+}
+function trace(vals, max) {
+  if (!vals.length) return '';
+  const n = vals.length, w = 100, h = 26, top = Math.max(max, 1);
+  const pts = vals.map((v, i) => `${(i / Math.max(n - 1, 1)) * w},${(h - 3 - (Math.min(Math.max(v, 0), top) / top) * (h - 8)).toFixed(2)}`);
+  return `<svg class="trace" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(' ')}"/></svg>`;
+}
+function renderLibrary(d) {
+  const st = d.stats, l = d.library || {};
+  $('#libSum').innerHTML = [[st.users, 'people'], [st.families, 'familiesN'], [st.books, 'books'], [l.awrad || 0, 'awradN'], [(st.downloads || 0) + (l.awradDownloads || 0), 'downloadsN'], [st.activeLastWeek, 'activeWeek']]
+    .map(([n, k]) => `<div><b>${fmt(n)}</b><span>${t(k)}</span></div>`).join('');
+  $('#m-library').innerHTML = [l.withPassword ? t('withPw', fmt(l.withPassword)) : '', l.dbBytes >= 1e6 ? t('dbSize', gb(l.dbBytes)) : '', l.duplicateNames ? `<a href="#/families">${t('dupNames', fmt(l.duplicateNames))}</a>` : ''].filter(Boolean).join(' · ');
+  const rec = l.recent || [], pubs = l.publishers || [];
+  $('#recent').innerHTML = rec.length ? rec.map((r) => `<li><span class="pill ${r.kind === 'book' ? '' : 'gold'}">${t(r.kind === 'book' ? 'kBook' : 'kWerd')}</span><b><bdi>${esc(r.title)}</bdi></b>
+    <span class="small muted"><bdi>${esc(r.by)}</bdi>${r.visibility === 'family' ? ' · ' + t('familyOnly') : ''} · ${pl(r.lines, 'line')}</span><span class="end">${when(r.at)}</span></li>`).join('')
+    : `<li class="muted small">${t('noRecent')}</li>`;
+  $('#sharers').innerHTML = pubs.length ? pubs.map((p) => `<li><b><bdi>${esc(p.name || '—')}</bdi></b><span class="small muted">${[p.books ? pl(p.books, 'book') : '', p.awrad ? fmt(p.awrad) + ' ' + t('awradN') : ''].filter(Boolean).join(' · ')}</span><span class="end">${fmt(p.downloads)} ${t('downloads')}</span></li>`).join('')
+    : `<li class="muted small">${t('noRecent')}</li>`;
+}
+function renderGpuWarn(d) {
+  const r = d.ocr && d.ocr.report;
+  $('#gpuWarn').innerHTML = r && r.cuda && r.problem
+    ? `<div class="notice ${r.onCard ? 'amber' : ''}">${icon('gpu')}<span>${t(r.onCard ? 'partialCard' : 'cpuFallback', errText(esc(r.problem)))}</span><a class="btn sm ghost" href="#/settings/ai">${t('details')}</a></div>` : '';
+}
+function renderBoard(d) {
+  const s = d.system, H = s.history || [];
+  const busy = d.ocr.work ? t('busyAI') : d.jobs.some((j) => j.state === 'running') ? t('busyVoice') : d.ocr.downloads.some((x) => !x.error) ? t('busyDl') : s.cpu >= 50 ? t('busyHost') : t('idle');
+  const memPct = s.memTotal ? 100 * s.memUsed / s.memTotal : 0, diskPct = s.diskTotal ? 100 * s.diskUsed / s.diskTotal : 0;
+  const g = d.gpu, GH = d.gpuHistory || [];
+  const pressure = { cpu: Math.max(s.cpu, 0), memory: memPct, disk: diskPct, ...(g ? { gpu: g.util } : {}) };
+  const lit = Object.entries(pressure).sort((a, b) => b[1] - a[1])[0][0];
+  const cell = (k, v, sub, tr) => {
+    const on = k === lit, p = pressure[k] ?? 0, crit = p >= 90;
+    const tag = crit ? `<span class="tag crit">${t(k === 'disk' ? 'full' : 'high')}</span>` : on && p >= 75 ? `<span class="tag">${t('high')}</span>` : '';
+    return `<div class="cell ${on ? 'lit' : ''} ${crit ? 'crit' : ''}">${tag}<span class="k">${t(k)}</span><span class="v">${v}</span><span class="s">${sub}</span>${tr}</div>`;
+  };
+  const memSub = s.engineRss > 2e8 ? t('modelIn', gb(s.engineRss)) : s.memScope === 'container' ? t('ofGB', gb(s.memTotal)) + ' · ' + t('container') : t('ofGB', gb(s.memTotal));
+  const st = d.stats;
+  $('#board').classList.toggle('g6', !!g);
+  $('#board').innerHTML = `<div class="title"><h1>${t('serverTitle')}</h1>
+    <span class="live"><i></i>${t('running', span(Date.now() - s.startedAt))} · ${esc(d.version)}</span>
+    <span class="machine">${esc(s.machine || s.os)}${s.docker ? ' · ' + t('inDocker') : ''}${g ? ' · ' + esc(g.name.replace(/^NVIDIA (GeForce )?/, '')) : ''}</span>
+    <span class="totals">${t('totals', pl(st.users, 'person'), pl(st.families, 'family'), pl(st.books, 'book'))}</span></div>
+    ${cell('cpu', s.cpu < 0 ? '—' : fmt(s.cpu) + '<small>%</small>', s.cpu > 15 ? busy : t('cores', s.cores), trace(H.map((x) => x.cpu), 100))}
+    ${cell('memory', s.memTotal ? fmt(s.memUsed / 1e9, 1) + '<small>GB</small>' : '—', memSub, trace(H.map((x) => x.memUsed), s.memTotal))}
+    ${g ? cell('gpu', fmt(g.util) + '<small>%</small>', [g.memTotal ? t('gpuMem', fmt(g.memUsed / 1024, 1), fmt(g.memTotal / 1024, 0)) : '', g.temp ? t('gpuTemp', fmt(g.temp)) : ''].filter(Boolean).join(' · '), trace(GH.map((x) => x.util), 100)) : ''}
+    ${cell('disk', s.diskTotal ? fmt(diskPct) + '<small>%</small>' : '—', s.diskTotal ? t('free', gb(s.diskTotal - s.diskUsed)) : '', s.diskTotal ? `<span class="dbar" aria-hidden="true"><i style="width:${diskPct.toFixed(1)}%"></i></span>` : '')}
+    ${cell('phones', fmt(s.phones), t('lastHour'), '')}
+    ${cell('requests', fmt(s.reqMin), t('perMin'), trace(H.map((x) => x.reqMin), Math.max(10, ...H.map((x) => x.reqMin))))}`;
+}
+const trunc = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+const packName = (id) => id === 'gpu-voice' ? 'Chatterbox' : id === 'llama-cuda' ? 'llama.cpp CUDA' : id.startsWith('piper-') ? 'Piper · ' + id.slice(6) : id;
+function gpuFacts(g) {
+  if (!g) return '';
+  const memP = g.memTotal ? 100 * g.memUsed / g.memTotal : 0;
+  return `<span>${esc(g.name.replace(/^NVIDIA (GeForce )?/, ''))}</span><span class="meter">${t('gpuUse')} <b>${fmt(g.util)}%</b></span><span class="meter">${t('vram')} <b>${fmt(g.memUsed / 1024, 1)}/${fmt(g.memTotal / 1024, 0)} GB</b><span class="bar"><i class="gold" style="width:${memP.toFixed(0)}%"></i></span></span>`;
+}
+function renderPC(d) {
+  const h = d.helper, el = $('#pcbar');
+  if (!h || !h.status) { el.classList.add('hidden'); return; }
+  const s = h.status, on = h.online, work = (h.work || []).find((w) => w.state === 'running');
+  const doing = work ? (work.kind === 'ocr' ? t('pcReading') : work.kind === 'tts' ? t('pcVoice') : t('busyDl')) : t('idle');
+  el.classList.remove('hidden'); el.classList.toggle('off', !on);
+  el.innerHTML = `<span class="ic">${icon('pc')}</span><span class="who"><b>${esc(s.name)}</b><span class="small muted">${on ? t('pcOnline') + ' · ' + doing : t('pcAsleep', ago(h.seen))}</span></span>
+    ${on ? `<span class="facts"><span class="meter">${t('cpu')} <b>${fmt(Math.max(s.cpu, 0))}%</b></span>${gpuFacts(s.gpu)}${s.gpu && s.gpu.temp ? `<span class="meter">${t('gpuTemp', fmt(s.gpu.temp))}</span>` : ''}${s.ocr && s.ocr.gpuProblem ? `<span class="pill red" title="${esc(s.ocr.gpuProblem)}">${t('pcCpuFallback')}</span>` : ''}</span>` : ''}
+    ${!on && h.mac ? `<button class="btn ghost sm" type="button" id="pcWake">${icon('power')}${t('wakeNow')}</button>` : `<a class="btn ghost sm" href="#/settings/pc">${t('details')}</a>`}`;
+  const b = $('#pcWake'); if (b) b.onclick = guard(async () => { await api('/admin/api/helper/wake', { method: 'POST' }); toast(t('wakeSent')); });
+}
+function renderAlerts(d) {
+  const n = d.stats.openReports, s = d.system, free = s.diskTotal - s.diskUsed, full = s.diskTotal && s.diskUsed / s.diskTotal >= .9;
+  $('#alerts').innerHTML = (full ? `<div class="notice">${icon('error')}<span>${t('diskFull', gb(free))}</span><a class="btn sm ghost" href="#/settings/server">${t('details')}</a></div>` : '')
+    + (n ? `<div class="notice amber">${icon('error')}<span>${t('openReports', pl(n, 'report'))}</span><a class="btn sm ghost" href="#/library/reports">${t('review')}</a></div>` : '');
+  $('#alerts').classList.toggle('hidden', !n && !full);
+}
+const jobSort = { key: 'started', dir: -1 };
+function renderJobs(d) {
+  const rows = [];
+  const w = d.ocr.work, tasks = d.tasks || [];
+  for (const k of tasks) rows.push({ name: t('pageFor', esc(k.who || '—')), sub: [k.what ? '«' + esc(k.what) + '»' : '', k.where === 'pc' ? t('onPCshort') : w && w.model && k.where === 'here' ? esc(w.model) : ''].filter(Boolean).join(' · '),
+    kind: t(k.where === 'pc' ? 'jobAIpc' : 'jobAI'), bar: `<div class="bar indet"><i class="gold"></i></div>`, prog: span(Date.now() - k.startedAt),
+    st: k.state === 'waiting' ? ['wait', t('sWaiting')] : k.where === 'here' && w && w.phase === 'loading' ? ['load', t('sLoading')] : ['', t('sReading')],
+    started: k.startedAt, order: 0, stop: `data-stask="${esc(k.id)}"` });
+  if (w && !tasks.length) rows.push({ name: w.model ? (w.name ? t('pageFor', esc(w.name)) : '—') : t('waitingN', pl(w.waiting, 'page')), sub: w.model ? esc(w.model) + (w.waiting ? ' · ' + t('waitingN', pl(w.waiting, 'page')) : '') : '',
+    kind: t('jobAI'), bar: `<div class="bar indet"><i class="gold"></i></div>`, prog: span(Date.now() - (w.startedAt || Date.now())),
+    st: w.phase === 'loading' ? ['load', t('sLoading')] : w.phase === 'waiting' ? ['wait', t('sWaiting')] : ['', t('sReading')], started: w.startedAt || Date.now(), order: 0 });
+  for (const x of d.ocr.downloads) rows.push({ name: esc(x.name), kind: t('jobDl'), bar: `<div class="bar"><i class="${x.error ? 'red' : 'blue'}" style="width:${Math.round(100 * x.done / x.total)}%"></i></div>`,
+    prog: `${fmt(x.done / 1e9, 1)} / ${fmt(x.total / 1e9, 1)} GB`, st: x.error ? ['err', t('sFailed')] : ['', t('sRunning')], sub: x.error ? errText(esc(x.error)) : '', started: Date.now(), order: x.error ? 3 : 1 });
+  for (const j of d.jobs) rows.push({ name: '«' + esc(j.title) + '»', sub: j.error ? errText(esc(j.error)) : '', kind: t('jobVoice', esc(voiceName(j.voice))),
+    bar: `<div class="bar"><i class="${j.state === 'failed' ? 'red' : 'gold'}" style="width:${j.total ? Math.round(100 * j.done / j.total) : 0}%"></i></div>`,
+    prog: `${fmt(j.done)}/${j.total ? fmt(j.total) : '…'}`, st: { queued: ['wait', t('sQueued')], running: ['', t('sRunning')], done: ['done', t('sDone')], failed: ['err', t('sFailed')], cancelled: ['wait', t('sCancelled')] }[j.state] || ['wait', j.state],
+    started: j.startedAt || j.finishedAt || 0, order: { running: 1, queued: 2, failed: 3, done: 4 }[j.state] || 5, stop: j.state === 'queued' || j.state === 'running' ? `data-sjob="${j.id}"` : '' });
+  for (const h of (d.helper?.work || []).filter((h) => !(tasks.length && h.kind === 'ocr'))) rows.push({ name: h.kind === 'ocr' ? t('pageFor', esc(h.who || '—')) : h.kind === 'tts' ? `<span style="font-family:Amiri;font-size:16px">${esc(trunc(h.what, 46))}</span>` : esc(h.what),
+    sub: t('onPCshort'), kind: t(h.kind === 'ocr' ? 'jobAIpc' : h.kind === 'tts' ? 'jobVoicePC' : 'jobDl'), bar: `<div class="bar indet"><i class="gold"></i></div>`,
+    prog: span(Date.now() - h.startedAt), st: h.state === 'running' ? ['', t('sRunning')] : ['wait', t('sWaiting')], started: h.startedAt, order: h.state === 'running' ? 0 : 2 });
+  for (const x of d.packs || []) rows.push({ name: esc(packName(x.id)), sub: x.error ? errText(esc(x.error)) : t('ph_' + x.phase), kind: t('jobInstall'),
+    bar: `<div class="bar ${x.phase !== 'downloading' && !x.error ? 'indet' : ''}"><i class="${x.error ? 'red' : 'blue'}" style="width:${x.total ? Math.round(100 * x.done / x.total) : 0}%"></i></div>`,
+    prog: x.total ? `${fmt(x.done / 1e9, 2)} / ${fmt(x.total / 1e9, 1)} GB` : '', st: x.error ? ['err', t('sFailed')] : ['', t('sRunning')], started: Date.now(), order: x.error ? 3 : 1 });
+  const running = rows.filter((r) => r.st[0] === '' || r.st[0] === 'load').length, failed = rows.filter((r) => r.st[0] === 'err').length;
+  const stoppable = rows.filter((r) => r.stop).length;
+  $('#jobsMeta').innerHTML = [running ? t('running_n', running) : '', failed ? t('failed_n', failed) : ''].filter(Boolean).join(' · ') +
+    (stoppable > 1 ? ` <button type="button" class="btn sm ghost" id="stopAll">${t('cancelAll')}</button>` : '');
+  if (!rows.length) { $('#jobs').innerHTML = `<div class="empty"><b>${t('noJobs')}</b>${t('noJobsHint')}</div>`; return; }
+  const k = jobSort.key;
+  rows.sort((a, b) => k === 'state' ? (a.order - b.order) * -jobSort.dir || b.started - a.started : (a.started - b.started) * jobSort.dir);
+  const th = (key, label) => key ? `<th><button type="button" data-sort="${key}" ${jobSort.key === key ? `aria-sort="${jobSort.dir > 0 ? 'ascending' : 'descending'}"` : ''}>${label}</button></th>` : `<th>${label}</th>`;
+  $('#jobs').innerHTML = `<div class="scroller"><table class="t stack jobs"><thead><tr>${th('', t('work'))}${th('', t('kind'))}${th('', t('progress'))}${th('state', t('state'))}${th('started', t('started'))}</tr></thead><tbody>${rows.map((r) =>
+    `<tr><td class="c-name"><b>${r.name}</b>${r.sub ? `<span class="sub">${r.sub}</span>` : ''}</td><td class="c-kind muted small">${r.kind}</td><td class="c-prog">${r.bar}<span class="sub">${r.prog}</span></td><td class="c-state"><span class="st ${r.st[0]}">${r.st[1]}</span></td><td class="c-start muted small">${r.started ? when(r.started) : ''}${r.stop ? ` <button type="button" class="btn sm ghost stopbtn" ${r.stop}>${t('cancel')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  $('#jobs').onclick = guard(async (e) => {
+    const x = e.target.closest('[data-stask],[data-sjob]');
+    if (x) {
+      x.disabled = true;
+      await api(x.dataset.stask ? '/admin/api/tasks/' + x.dataset.stask : '/admin/api/tts/jobs/' + x.dataset.sjob, { method: 'DELETE' });
+      toast(t('cancelledT')); state.tick && state.tick(); return;
+    }
+    const b = e.target.closest('[data-sort]'); if (!b) return; if (jobSort.key === b.dataset.sort) jobSort.dir *= -1; else { jobSort.key = b.dataset.sort; jobSort.dir = -1; } renderJobs(state.dash); });
+  const sa = $('#stopAll'); if (sa) sa.onclick = guard(async () => { if (!confirm(t('cancelAllQ'))) return; await api('/admin/api/tasks', { method: 'DELETE' }); toast(t('cancelledT')); state.tick && state.tick(); });
+}
+function renderChart(d) {
+  const s = d.system, H = (s.history || []).filter((x) => x.cpu >= 0);
+  const memP = (x) => s.memTotal ? 100 * x.memUsed / s.memTotal : 0;
+  const last = H[H.length - 1];
+  const G = (d.gpuHistory || []).filter((x) => x.at > Date.now() - 15 * 60e3), gl = G[G.length - 1];
+  $('#legend').innerHTML = last ? `<span class="lg"><i style="background:var(--primary)"></i>${t('cpu')} <b class="num">${fmt(last.cpu)}%</b></span><span class="lg"><i style="background:var(--gold)"></i>${t('memPct')} <b class="num">${fmt(memP(last))}%</b></span>${gl ? `<span class="lg"><i style="background:var(--blue)"></i>${t('gpuLine')} <b class="num">${fmt(gl.util)}%</b></span>` : ''}` : '';
+  if (H.length < 3) { $('#chart').innerHTML = `<div class="empty">${t('collecting')}</div>`; return; }
+  const W = Math.max(320, Math.round($('#chart').clientWidth || 600)), Hh = 170, L = 34, R = 8, T = 8, B = 22, span15 = 15 * 60e3, t1 = Date.now(), t0 = t1 - span15;
+  const x = (at) => L + (Math.max(at - t0, 0) / span15) * (W - L - R), y = (v) => T + (1 - Math.min(Math.max(v, 0), 100) / 100) * (Hh - T - B);
+  const path = (f) => H.map((p, i) => `${i ? 'L' : 'M'}${x(p.at).toFixed(1)},${y(f(p)).toFixed(1)}`).join('');
+  const grid = [0, 50, 100].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const ticks = [15, 10, 5, 0].map((m) => `<text x="${x(t1 - m * 60e3)}" y="${Hh - 6}" text-anchor="${m === 15 ? 'start' : m === 0 ? 'end' : 'middle'}">${m ? t('minAgoL', m) : t('nowL')}</text>`).join('');
+  $('#chart').innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${t('loadChart')}" dir="ltr"><g class="grid">${grid}</g><g class="ticks">${ticks}</g>
+    ${G.length > 2 ? `<path d="${G.map((p, i) => `${i ? 'L' : 'M'}${x(p.at).toFixed(1)},${y(p.util).toFixed(1)}`).join('')}" class="ln gpu"/><circle cx="${x(gl.at)}" cy="${y(gl.util)}" r="3.5" class="dot gpu"/>` : ''}
+    <path d="${path(memP)}" class="ln mem"/><path d="${path((p) => p.cpu)}" class="ln cpu"/><circle cx="${x(last.at)}" cy="${y(last.cpu)}" r="3.5" class="dot cpu"/><circle cx="${x(last.at)}" cy="${y(memP(last))}" r="3.5" class="dot mem"/></svg>`;
+}
+function voiceName(v) { if (!v) return '—'; const p = v.split(':'); return p.length > 1 ? p.slice(1).join(':') + ' (' + p[0] + ')' : v; }
+
+// one sentence per event, in both languages
+const EV = {
+  'server.start': { ar: (a) => `بدأ الخادم · الإصدار ${a.version}`, en: (a) => `Server started · version ${a.version}` },
+  'server.voices': { ar: () => 'حُفظت إعدادات الأصوات', en: () => 'Voice settings saved' },
+  'server.backup': { ar: () => 'نُزّلت نسخة احتياطية', en: () => 'Backup downloaded' },
+  'phone.joined': { ar: (a) => `هاتف جديد اتصل: <b>${a.name || 'بلا اسم'}</b>`, en: (a) => `New phone connected: <b>${a.name || 'no name'}</b>` },
+  'phone.sync': { ar: (a) => `<b>${a.name}</b> زامن تقدّم اليوم`, en: (a) => `<b>${a.name}</b> synced today's progress`,
+    sub: { ar: (a) => a.due ? `أكمل ${a.done} من ${a.due}${a.streak > 1 ? ' · سلسلة ' + pl(a.streak, 'day') : ''}` : '', en: (a) => a.due ? `${a.done} of ${a.due} done${a.streak > 1 ? ' · ' + a.streak + '-day streak' : ''}` : '' } },
+  'family.created': { ar: (a) => `<b>${a.name}</b> أنشأ عائلة «${a.family}»`, en: (a) => `<b>${a.name}</b> created the family “${a.family}”` },
+  'family.joined': { ar: (a) => `<b>${a.name}</b> انضمّ إلى «${a.family}»`, en: (a) => `<b>${a.name}</b> joined “${a.family}”` },
+  'family.left': { ar: (a) => `<b>${a.name}</b> غادر «${a.family}»`, en: (a) => `<b>${a.name}</b> left “${a.family}”` },
+  'family.werd': { ar: (a) => `<b>${a.from}</b> أرسل ورد «${a.title}» إلى <b>${a.to}</b>`, en: (a) => `<b>${a.from}</b> sent “${a.title}” to <b>${a.to}</b>`,
+    sub: { ar: (a) => `${pl(a.lines, 'line')}${a.auto ? ' · أُضيف تلقائياً' : ''}`, en: (a) => `${pl(a.lines, 'line')}${a.auto ? ' · added automatically' : ''}` } },
+  'family.role': { ar: (a) => `<b>${a.by}</b> جعل <b>${a.name}</b> ${a.role === 'parent' ? 'وليّاً' : 'ابناً'}`, en: (a) => `<b>${a.by}</b> made <b>${a.name}</b> a ${a.role}` },
+  'family.removed': { ar: (a) => `<b>${a.by}</b> أزال <b>${a.name}</b> من العائلة`, en: (a) => `<b>${a.by}</b> removed <b>${a.name}</b> from the family` },
+  'werd.shared': { ar: (a) => `<b>${a.name}</b> شارك ورد «${a.title}»`, en: (a) => `<b>${a.name}</b> shared the werd “${a.title}”`,
+    sub: { ar: (a) => `${pl(a.lines, 'line')} · ${a.visibility === 'family' ? 'للعائلة' : 'عام'}`, en: (a) => `${pl(a.lines, 'line')} · ${a.visibility === 'family' ? 'family only' : 'public'}` } },
+  'library.published': { ar: (a) => `<b>${a.name}</b> نشر «${a.title}»`, en: (a) => `<b>${a.name}</b> published “${a.title}”`,
+    sub: { ar: (a) => `${a.visibility === 'family' ? 'للعائلة' : 'عام'} · ${mad(a.madhhab)} · ${pl(a.lines, 'line')}`, en: (a) => `${a.visibility === 'family' ? 'family' : 'public'} · ${mad(a.madhhab)} · ${pl(a.lines, 'line')}` } },
+  'library.reported': { ar: (a) => `بلاغ عن «${a.title}» من <b>${a.name}</b>`, en: (a) => `<b>${a.name}</b> reported “${a.title}”`, sub: { ar: (a) => a.reason, en: (a) => a.reason } },
+  'library.hidden': { ar: (a) => `أُخفي «${a.title}» من المكتبة`, en: (a) => `“${a.title}” hidden from the library` },
+  'library.shown': { ar: (a) => `أُظهر «${a.title}» في المكتبة`, en: (a) => `“${a.title}” shown in the library again` },
+  'library.deleted': { ar: (a) => `حُذف «${a.title}»`, en: (a) => `“${a.title}” deleted` },
+  'voice.clip': { ar: (a) => `صُنع صوت جديد لهاتف <b>${a.name}</b>`, en: (a) => `New audio made for <b>${a.name}</b>`, sub: { ar: (a) => voiceName(a.voice), en: (a) => voiceName(a.voice) } },
+  'voice.shared': { ar: (a) => `<b>${a.name}</b> شارك مقاطع بصوت ${a.voice}`, en: (a) => `<b>${a.name}</b> shared clips in ${a.voice}` },
+  'voice.failed': { ar: () => 'تعذّر صنع مقطع صوتي', en: () => "Couldn't make an audio clip", sub: { ar: (a) => errText(a.error), en: (a) => a.error } },
+  'voice.job.started': { ar: (a) => `بدأ تجهيز صوت «${a.title}»`, en: (a) => `Started the audio for “${a.title}”`, sub: { ar: (a) => voiceName(a.voice), en: (a) => voiceName(a.voice) } },
+  'voice.job.cancelled': { ar: (a) => `أُلغي صوت «${a.title}»`, en: (a) => `Audio for “${a.title}” was cancelled`, sub: { ar: (a) => `${a.done}/${a.total}`, en: (a) => `${a.done}/${a.total}` } },
+  'task.cancelled': { ar: (a) => a.by === 'main' ? 'ألغى الخادم الرئيسي عملاً على هذا الحاسوب' : a.by === 'phone' ? `ألغى <b>${a.name}</b> قراءة كتاب` : 'أُلغي عمل من لوحة التحكم',
+    en: (a) => a.by === 'main' ? 'The main server cancelled work on this PC' : a.by === 'phone' ? `<b>${a.name}</b> cancelled a book scan` : 'Work was cancelled from the dashboard' },
+  'voice.job.done': { ar: (a) => `اكتمل صوت «${a.title}»`, en: (a) => `Audio for “${a.title}” is ready`, sub: { ar: (a) => `${pl(a.total, 'line')} · ${a.made} جديد`, en: (a) => `${pl(a.total, 'line')} · ${a.made} new` } },
+  'voice.job.failed': { ar: (a) => `توقّف تجهيز صوت «${a.title}»`, en: (a) => `Audio for “${a.title}” stopped`, sub: { ar: (a) => `${a.done}/${a.total} · ${errText(a.error)}`, en: (a) => `${a.done}/${a.total} · ${a.error}` } },
+  'ai.read': { ar: (a) => `قُرئت صفحة لـ<b>${a.name}</b>`, en: (a) => `Read a page for <b>${a.name}</b>`, sub: { ar: (a) => `${a.model} · ${a.secs} ث · ${pl(a.chars, 'char')}`, en: (a) => `${a.model} · ${a.secs} s · ${pl(a.chars, 'char')}` } },
+  'ai.failed': { ar: (a) => `تعذّرت قراءة صفحة لـ<b>${a.name}</b>`, en: (a) => `Couldn't read a page for <b>${a.name}</b>`, sub: { ar: (a) => errText(a.error), en: (a) => a.error } },
+  'ai.download.started': { ar: (a) => `بدأ تنزيل ${a.model}`, en: (a) => `Started downloading ${a.model}`, sub: { ar: (a) => gb(a.bytes), en: (a) => gb(a.bytes) } },
+  'ai.download.done': { ar: (a) => `اكتمل تنزيل ${a.model}`, en: (a) => `${a.model} downloaded` },
+  'ai.download.failed': { ar: (a) => `تعذّر تنزيل ${a.model}`, en: (a) => `Downloading ${a.model} failed`, sub: { ar: (a) => errText(a.error), en: (a) => a.error } },
+  'ai.default': { ar: (a) => `صار ${a.model} نموذج القراءة الافتراضي`, en: (a) => `${a.model} is now the default reading model` },
+};
+Object.assign(EV, {
+  'helper.online': { ar: (a) => `<b>${a.name}</b> استيقظ ويساعد الخادم`, en: (a) => `<b>${a.name}</b> is awake and helping` },
+  'helper.offline': { ar: (a) => `<b>${a.name}</b> نام أو انقطع`, en: (a) => `<b>${a.name}</b> went to sleep or offline` },
+  'helper.wake': { ar: (a) => `أُرسلت إشارة لإيقاظ <b>${a.name}</b>`, en: (a) => `Sent a wake signal to <b>${a.name}</b>` },
+  'voice.install.started': { ar: (a) => `بدأ تثبيت الصوت ${a.voice}`, en: (a) => `Started installing the voice ${a.voice}` },
+  'voice.install.done': { ar: (a) => `ثُبّت الصوت ${a.voice}`, en: (a) => `The voice ${a.voice} is installed` },
+  'voice.install.failed': { ar: (a) => `تعذّر تثبيت الصوت ${a.voice}`, en: (a) => `Installing the voice ${a.voice} failed`, sub: { ar: (a) => errText(a.error), en: (a) => a.error } },
+  'voice.ref': { ar: (a) => `أُضيفت عيّنة الصوت «${a.voice}»`, en: (a) => `Added the voice sample “${a.voice}”` },
+});
+EV['ai.read'].sub = { ar: (a) => `${a.model} · ${a.secs} ث · ${pl(a.chars, 'char')}${a.on === 'pc' ? ' · على الحاسوب' : a.for === 'main' ? ' · للخادم الرئيسي' : ''}`,
+  en: (a) => `${a.model} · ${a.secs} s · ${pl(a.chars, 'char')}${a.on === 'pc' ? ' · on the PC' : a.for === 'main' ? ' · for the main server' : ''}` };
+Object.assign(EV, {
+  'phone.password': { ar: (a) => `<b>${a.name}</b> أضاف كلمة مرور لحسابه`, en: (a) => `<b>${a.name}</b> set a password` },
+  'phone.signedIn': { ar: (a) => `<b>${a.name}</b> دخل من هاتف`, en: (a) => `<b>${a.name}</b> signed in on a phone` },
+  'server.signinCode': { ar: (a) => `صُنع رمز دخول لـ<b>${a.name}</b>`, en: (a) => `Made a sign-in code for <b>${a.name}</b>` },
+  'server.merged': { ar: (a) => `دُمج حساب مكرّر لـ<b>${a.name}</b>`, en: (a) => `Merged a duplicate account of <b>${a.name}</b>` },
+  'ai.added': { ar: (a) => `أُضيف نموذج القراءة ${a.model}`, en: (a) => `Added the reading model ${a.model}` },
+  'ai.cpuFallback': { ar: () => 'حُمّل نموذج القراءة على المعالج لا على البطاقة', en: () => 'The reading model loaded on the processor, not the graphics card', sub: { ar: (a) => errText(a.error), en: (a) => a.error } },
+});
+// the server's own error sentences, worded for the Arabic page (the original stays in the tooltip)
+const ERR_AR = [[/AI engine stopped while loading/i, 'توقّف محرّك الذكاء الاصطناعي أثناء تحميل النموذج (التفاصيل في <bdi class="nowrap">llama-server.log</bdi> داخل مجلد البيانات)'],
+  [/took too long to load/i, 'استغرق تحميل النموذج وقتاً طويلاً'], [/not installed with this server|isn't bundled/i, 'محرّك الذكاء الاصطناعي غير مثبّت مع هذا الخادم'],
+  [/no reading model/i, 'لا يوجد نموذج قراءة على الخادم بعد'], [/context deadline exceeded|timeout/i, 'انتهت المهلة قبل اكتمال العمل'],
+  [/HTTP 401|unauthori[sz]ed|invalid api key|api key not valid/i, 'المفتاح مرفوض من مزوّد الخدمة'], [/HTTP 429|quota|rate limit/i, 'تجاوزت حدّ الاستخدام لدى المزوّد'],
+  [/no such host|connection refused|network is unreachable/i, 'تعذّر الاتصال بالإنترنت أو بالمزوّد'], [/no space left/i, 'لا توجد مساحة كافية على القرص'],
+  [/asleep or offline/i, 'الحاسوب نائم أو غير متصل'],
+  [/driver is too old/i, 'برنامج تشغيل NVIDIA أقدم من محرّك CUDA هذا. حدّثه ثم أعد تشغيل الخادم أو أعد تثبيت محرّك CUDA.'],
+  [/Not enough graphics memory/i, 'ذاكرة البطاقة لا تكفي لهذا النموذج. أغلق الألعاب أو البرامج التي تستعمل البطاقة، أو اختر نموذجاً أصغر.'],
+  [/CUDA couldn't start/i, 'تعذّر تشغيل CUDA على البطاقة. حدّث برنامج تشغيل NVIDIA وأعد تشغيل الحاسوب.'],
+  [/found no graphics card/i, 'لم يجد المحرّك بطاقة رسومات يستطيع استعمالها.'], [/loaded on the processor/i, 'حُمّل النموذج على المعالج (لا طبقات على البطاقة).'],
+  [/layers fit on the card/i, 'جزء من طبقات النموذج فقط على البطاقة، والباقي على المعالج.'], [/doesn't say it used the graphics card/i, 'سجلّ المحرّك لا يذكر أنه استعمل البطاقة.'], [/no NVIDIA/i, 'لا توجد بطاقة NVIDIA على هذا الجهاز'], [/install\.log/i, 'تعذّر التثبيت (التفاصيل في voices/gpu/install.log داخل مجلد البيانات)']];
+const errText = (raw) => { if (lang !== 'ar' || !raw) return raw; const hit = ERR_AR.find(([re]) => re.test(raw)); return hit ? `<span title="${raw}">${hit[1]}</span>` : raw; };
+const mad = (m) => t({ hanafi: 'mHanafi', maliki: 'mMaliki', shafii: 'mShafii', hanbali: 'mHanbali', general: 'mGeneral' }[m] || 'mOther');
+function evText(e) {
+  const a = {}; for (const [k, v] of Object.entries(e.args || {})) a[k] = typeof v === 'string' ? (k === 'error' ? esc(v) : k === 'voice' || k === 'visibility' || k === 'madhhab' ? v : `<bdi>${esc(v)}</bdi>`) : v;
+  const d = EV[e.code]; if (!d) return [esc(e.code), ''];
+  return [d[lang](a), d.sub ? d.sub[lang](a) : ''];
+}
+function evIcon(e) { return e.level === 'error' ? ['error', 'error'] : e.level === 'warn' ? ['error', 'warn'] : [{ phone: 'phone', family: 'family', library: 'library', voice: 'voice', ai: 'ai', server: 'server' }[e.kind], e.kind]; }
+function feedItems(list, fresh, from = 0) {
+  return list.map((e, i) => { const [main, sub] = evText(e); const [ic, cls] = evIcon(e);
+    return `<li class="${e.level === 'error' ? 'error' : ''} ${fresh && e.id > fresh ? 'fresh' : ''} ${from + i >= state.shown ? 'more-hidden' : ''}"><span class="ic ${cls}">${icon(ic)}</span><p>${main}${e.count > 1 ? `<span class="x">×${e.count}</span>` : ''}${sub ? `<small>${sub}</small>` : ''}</p><time datetime="${new Date(e.at).toISOString()}" title="${new Date(e.at).toLocaleString()}">${when(e.at)}</time></li>`; }).join('');
+}
+function renderFeed(d) {
+  const c = d.counts || {};
+  const kinds = ['', 'phone', 'family', 'library', 'voice', 'ai', 'error'];
+  $('#chips').innerHTML = kinds.map((k) => `<button type="button" class="chip ${k === 'error' ? 'err' : ''} ${state.kind === k ? 'on' : ''}" data-k="${k}" aria-pressed="${state.kind === k}">${k ? t('k' + k) : t('all')}<b>${fmt(c[k || 'all'] || 0)}</b></button>`).join('');
+  $('#chips').onclick = (e) => { const b = e.target.closest('[data-k]'); if (!b) return; state.kind = b.dataset.k; state.lastId = 0; stopPoll(); dashView($('#view')); };
+  $('#actMeta').textContent = t('todayN', fmt(c.all || 0));
+  const list = d.activity || [];
+  if (!list.length) { $('#feed').innerHTML = `<li style="display:block"><div class="empty"><b>${t('noActivity')}</b>${t('noActivityHint')}</div></li>`; $('#more').innerHTML = ''; return; }
+  if (!$('#feed').dataset.extra) $('#feed').innerHTML = feedItems(list, state.lastId);
+  state.lastId = Math.max(state.lastId, ...list.map((e) => e.id));
+  const hiddenN = $('#feed').querySelectorAll('li.more-hidden').length;
+  $('#more').innerHTML = hiddenN || list.length >= 60 ? `<button class="btn ghost sm" type="button">${t('loadMore')}</button>` : '';
+  $('#more').onclick = guard(async () => {
+    const hid = [...$('#feed').querySelectorAll('li.more-hidden')];
+    if (hid.length) { hid.slice(0, 20).forEach((li) => li.classList.remove('more-hidden')); state.shown += 20; if (hid.length <= 20 && list.length < 60) $('#more').innerHTML = ''; return; }
+    state.shown = 1e9;
+    const items = state.dash.activity; const oldest = $('#feed').dataset.before || items[items.length - 1].id;
+    const r = await api(`/admin/api/activity?before=${oldest}&kind=${state.kind}`);
+    $('#feed').insertAdjacentHTML('beforeend', feedItems(r.activity)); $('#feed').dataset.extra = '1';
+    if (r.activity.length) $('#feed').dataset.before = r.activity[r.activity.length - 1].id; if (r.activity.length < 60) $('#more').innerHTML = '';
+  });
+}
+
+// ====================================================================== families
+function famView(view) {
+  view.innerHTML = `<div class="summary" id="famSum"></div><section class="panel hidden" id="dups"><div class="ph"><h2>${t('dupTitle')}</h2></div><p class="small muted" style="margin-top:0">${t('dupLead')}</p><div id="dupList"></div></section>
+    <div id="fams" style="display:grid;gap:14px"><div class="panel empty">…</div></div>`;
+  const loadDups = guard(async () => {
+    const { groups } = await api('/admin/api/users/duplicates'); state.dups = groups;
+    $('#dups').classList.toggle('hidden', !groups.length);
+    $('#dupList').innerHTML = groups.map((g, gi) => { const score = (u) => (u.hasPassword ? 1e15 : 0) + (u.family ? 1e14 : 0) + (u.shared || 0) * 1e13 + u.seenAt;
+      const keep = [...g.users].sort((a, b) => score(b) - score(a))[0].id;
+      return `<div class="dup"><b>${esc(g.name)}</b><div class="scroller"><table class="t stack"><thead><tr><th>${t('keepThis')}</th><th>${t('created')}</th><th>${t('lastSeen')}</th><th>${t('families')}</th><th>${t('pw')}</th><th></th></tr></thead><tbody>
+      ${g.users.map((u) => `<tr><td><label class="check"><input type="radio" name="keep${gi}" value="${u.id}" ${u.id === keep ? 'checked' : ''}><b>${esc(u.name)}</b></label></td><td class="small">${when(u.createdAt)}</td><td class="small">${ago(u.seenAt)}</td>
+        <td class="small">${esc(u.family || '—')}</td><td class="small">${u.hasPassword ? `<span class="st">${t('pwSet')}</span>` : `<span class="muted">${t('pwNone')}</span>`}</td><td class="small muted">${u.shared ? t('sharedN', fmt(u.shared)) : ''}</td></tr>`).join('')}
+      </tbody></table></div><div class="row" style="margin-top:8px"><button class="btn sm" type="button" data-merge="${gi}">${t('mergeInto')}</button></div></div>`; }).join('');
+  });
+  const load = guard(async () => {
+    const { families, active } = await api('/admin/api/families'); state.families = families;
+    const people = families.reduce((n, f) => n + f.members.length, 0), fams = families.filter((f) => f.id).length;
+    const parents = families.reduce((n, f) => n + f.members.filter((m) => m.role === 'parent').length, 0);
+    const today = Object.values(active || {}).filter((a) => Date.now() - a < 24 * 3600e3).length;
+    $('#famSum').innerHTML = [[people, 'people'], [fams, 'familiesN'], [parents, 'parents'], [today, 'activeToday']].map(([n, k]) => `<div><b>${fmt(n)}</b><span>${t(k)}</span></div>`).join('');
+    if (!families.length) { $('#fams').innerHTML = `<div class="panel"><div class="empty"><b>${t('noPeople')}</b>${t('noPeopleHint')}</div></div>`; return; }
+    $('#fams').innerHTML = families.map((f) => `<section class="panel fam"><div class="ph"><h2>${f.id ? esc(f.name) : t('noFamily')}</h2>
+      ${f.id ? `<span class="meta">${t('inviteCode')}</span><span class="code">${esc(f.code)}</span><span class="end"><button class="btn ghost sm" type="button" data-fam="${f.id}" data-name="${esc(f.name)}">${icon('edit')}${t('rename')}</button></span>` : ''}</div>
+      <div class="scroller"><table class="t stack"><thead><tr><th>${t('name')}</th>${f.id ? `<th>${t('role')}</th>` : ''}<th>${t('lastSeen')}</th><th>${t('sharing')}</th><th>${t('pw')}</th><th></th></tr></thead><tbody>
+      ${f.members.map((m) => { const seen = Math.max(active?.[m.id] || 0, m.seenAt); const on = active?.[m.id] && Date.now() - active[m.id] < 3600e3;
+        return `<tr><td data-c="wide"><span class="who"><span class="av">${esc((m.name || '؟').trim().charAt(0))}</span><b>${esc(m.name || '—')}</b></span></td>
+        ${f.id ? `<td><span class="role" role="group"><button type="button" class="${m.role === 'parent' ? 'on' : ''}" data-role="parent" data-id="${m.id}" aria-pressed="${m.role === 'parent'}">${t('parent')}</button><button type="button" class="${m.role === 'child' ? 'on' : ''}" data-role="child" data-id="${m.id}" aria-pressed="${m.role === 'child'}">${t('child')}</button></span></td>` : ''}
+        <td class="small"><span class="dot ${on ? 'on' : ''}"></span>${on ? t('now') : ago(seen)}</td><td class="small muted">${m.sharing ? t('shares') : t('private')}</td>
+        <td class="small">${m.hasPassword ? `<span class="st">${t('pwSet')}</span>` : `<span class="muted">${t('pwNone')}</span>`}</td>
+        <td class="act"><button class="iconbtn" type="button" title="${t('signinCode')}" aria-label="${t('signinCode')}" data-code="${m.id}" data-name="${esc(m.name)}">${icon('key')}</button><button class="iconbtn" type="button" title="${t('rename')}" aria-label="${t('rename')}" data-user="${m.id}" data-name="${esc(m.name)}">${icon('edit')}</button>
+        ${f.id ? `<button class="iconbtn danger" type="button" title="${t('remove')}" aria-label="${t('remove')}" data-rm="${m.id}" data-name="${esc(m.name)}">${icon('del')}</button>` : ''}</td></tr>`; }).join('')}
+      </tbody></table></div></section>`).join('');
+  });
+  view.onclick = guard(async (e) => {
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.code) { const r = await api('/admin/api/users/' + d.code + '/signin-code', { method: 'POST' }); showCode(d.name, r.code); }
+    else if (d.merge != null) {
+      const g = state.dups[+d.merge], keep = view.querySelector(`input[name=keep${d.merge}]:checked`)?.value; if (!keep) return;
+      const into = g.users.find((u) => u.id === keep), others = g.users.filter((u) => u.id !== keep);
+      if (!confirm(t('mergeQ', others.length, into.name))) return;
+      for (const o of others) await api('/admin/api/users/' + o.id + '/merge', { method: 'POST', body: JSON.stringify({ into: keep }) });
+      toast(t('merged')); loadDups(); load();
+    }
+    else if (d.role && !b.classList.contains('on')) { await api('/admin/api/users/' + d.id, { method: 'PUT', body: JSON.stringify({ role: d.role }) }); load(); }
+    else if (d.rm && confirm(t('removeQ', d.name))) { await api('/admin/api/users/' + d.rm + '/family', { method: 'DELETE' }); load(); }
+    else if (d.user) { const n = prompt(t('personNameQ'), d.name); if (n && n.trim()) { await api('/admin/api/users/' + d.user, { method: 'PUT', body: JSON.stringify({ name: n.trim() }) }); load(); } }
+    else if (d.fam) { const n = prompt(t('familyNameQ'), d.name); if (n && n.trim()) { await api('/admin/api/families/' + d.fam, { method: 'PUT', body: JSON.stringify({ name: n.trim() }) }); load(); } }
+  });
+  load(); loadDups();
+}
+function showCode(name, code) {
+  const el = document.createElement('div'); el.className = 'drawer';
+  el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${t('signinCode')}"><div class="ph"><h2>${t('signinCode')}</h2><span class="end"><button class="btn ghost sm" type="button" data-close="1">${t('close')}</button></span></div>
+    <p>${t('signinCodeShow', `<b>${esc(name)}</b>`)}</p><div class="bigcode">${esc(code)}</div><p class="small muted">${t('signinCodeHow')}</p>
+    <div class="row"><button class="btn ghost sm" type="button" data-copy="1">${icon('copy')}${t('copy')}</button></div></div>`;
+  el.onclick = (e) => { if (e.target === el || e.target.closest('[data-close]')) el.remove(); else if (e.target.closest('[data-copy]')) { navigator.clipboard?.writeText(code); toast(t('copied') || code); } };
+  document.body.append(el);
+}
+
+// ====================================================================== library
+function libView(view, sub) {
+  view.innerHTML = `<section class="panel hidden" id="reportsBox"><div class="ph"><h2>${t('reports')}</h2><span class="meta" id="repMeta"></span></div><div id="reports"></div></section>
+  <section class="panel"><div class="ph"><h2>${t('books')}</h2><span class="meta" id="bookMeta"></span><span class="end" style="flex:1;max-width:360px"><input type="search" id="bq" placeholder="${t('searchBooks')}"></span></div><div id="books"></div></section>
+  <section class="panel"><div class="ph"><h2>${t('sharedAwrad')}</h2><span class="meta" id="werdMeta"></span><span class="end" style="flex:1;max-width:360px"><input type="search" id="wq" placeholder="${t('searchAwrad')}"></span></div><div id="werds"></div></section>`;
+  const loadReports = guard(async () => {
+    const { reports } = await api('/admin/api/reports'); state.reports = reports.length;
+    $('#reportsBox').classList.toggle('hidden', !reports.length); $('#repMeta').textContent = fmt(reports.length);
+    $('#reports').innerHTML = `<div class="scroller"><table class="t stack"><tbody>${reports.map((r) => `<tr><td data-c="wide"><b>«${esc(r.bookTitle)}»</b><span class="sub">${esc(r.reason)}</span>
+      ${r.itemText ? `<span class="sub" style="font-family:Amiri;font-size:16px">${t('line', r.item + 1)}: ${esc(r.itemText)}</span>` : ''}</td><td class="small muted">${when(r.createdAt)}</td>
+      <td class="act"><button class="btn ghost sm" type="button" data-view="${r.bookId}">${t('view')}</button> <button class="btn sm" type="button" data-resolve="${r.id}">${t('resolve')}</button></td></tr>`).join('')}</tbody></table></div>`;
+    if (sub === 'reports') $('#reportsBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  let qTimer;
+  const loadBooks = guard(async () => {
+    const { books, total } = await api('/admin/api/books?q=' + encodeURIComponent($('#bq').value)); state.books = books;
+    $('#bookMeta').textContent = fmt(total);
+    if (!books.length) { $('#books').innerHTML = `<div class="empty"><b>${t('noBooks')}</b>${t('noBooksHint')}</div>`; return; }
+    $('#books').innerHTML = `<div class="scroller"><table class="t stack"><thead><tr><th>${t('title')}</th><th>${t('madhhab')}</th><th>${t('visibility')}</th><th>${t('linesN')}</th><th>${t('downloads')}</th><th></th></tr></thead><tbody>
+      ${books.map((b) => `<tr><td data-c="wide"><b>${esc(b.title)}</b><span class="sub">${esc([b.author, b.publisherName].filter(Boolean).join(' · '))} · ${when(b.publishedAt)}</span></td>
+      <td class="small">${mad(b.madhhab)}</td><td>${b.hidden ? `<span class="st err">${t('hidden')}</span>` : b.visibility === 'family' ? `<span class="st load">${t('familyOnly')}</span>` : `<span class="st">${t('public')}</span>`}</td>
+      <td class="small">${fmt(b.items)}</td><td class="small">${fmt(b.downloads)}</td>
+      <td class="act"><button class="iconbtn" type="button" data-view="${b.id}" title="${t('view')}" aria-label="${t('view')}">${icon('eye')}</button>
+      <button class="iconbtn" type="button" data-audio="${b.id}" title="${t('makeAudio')}" aria-label="${t('makeAudio')}">${icon('speaker')}</button>
+      <button class="iconbtn" type="button" data-hide="${b.id}" data-h="${b.hidden ? 0 : 1}" title="${b.hidden ? t('show') : t('hide')}" aria-label="${b.hidden ? t('show') : t('hide')}">${icon(b.hidden ? 'eye' : 'eyeoff')}</button>
+      <button class="iconbtn danger" type="button" data-del="${b.id}" data-title="${esc(b.title)}" title="${t('del')}" aria-label="${t('del')}">${icon('del')}</button></td></tr>`).join('')}</tbody></table></div>`;
+  });
+  $('#bq').oninput = () => { clearTimeout(qTimer); qTimer = setTimeout(loadBooks, 250); };
+  const loadWerds = guard(async () => {
+    const { werds, total } = await api('/admin/api/werds?q=' + encodeURIComponent($('#wq').value));
+    $('#werdMeta').textContent = fmt(total);
+    if (!werds.length) { $('#werds').innerHTML = `<div class="empty"><b>${t('noAwrad')}</b>${t('noAwradHint')}</div>`; return; }
+    $('#werds').innerHTML = `<div class="scroller"><table class="t stack"><thead><tr><th>${t('title')}</th><th>${t('visibility')}</th><th>${t('linesN')}</th><th>${t('downloads')}</th><th></th></tr></thead><tbody>
+      ${werds.map((w) => `<tr><td data-c="wide"><b>${esc(w.title)}</b><span class="sub">${esc(w.publisher)} · ${when(w.publishedAt)}${w.hasSettings ? ' · ' + t('withReminders') : ''}${w.textOnly ? ' · ' + t('textOnlyW') : ''}</span></td>
+      <td>${w.hidden ? `<span class="st err">${t('hidden')}</span>` : w.visibility === 'family' ? `<span class="st load">${t('familyOnly')}</span>` : `<span class="st">${t('public')}</span>`}</td>
+      <td class="small">${fmt(w.lineCount)}</td><td class="small">${fmt(w.downloads)}</td>
+      <td class="act"><button class="iconbtn" type="button" data-wview="${w.id}" title="${t('view')}" aria-label="${t('view')}">${icon('eye')}</button>
+      <button class="iconbtn" type="button" data-whide="${w.id}" data-h="${w.hidden ? 0 : 1}" title="${w.hidden ? t('show') : t('hide')}" aria-label="${w.hidden ? t('show') : t('hide')}">${icon(w.hidden ? 'eye' : 'eyeoff')}</button>
+      <button class="iconbtn danger" type="button" data-wdel="${w.id}" data-title="${esc(w.title)}" title="${t('del')}" aria-label="${t('del')}">${icon('del')}</button></td></tr>`).join('')}</tbody></table></div>`;
+  });
+  let wTimer;
+  $('#wq').oninput = () => { clearTimeout(wTimer); wTimer = setTimeout(loadWerds, 250); };
+  view.onclick = guard(async (e) => {
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.view) viewBook(d.view);
+    else if (d.resolve) { await api(`/admin/api/reports/${d.resolve}/resolve`, { method: 'POST' }); loadReports(); }
+    else if (d.audio) { await api(`/admin/api/books/${d.audio}/tts`, { method: 'POST', body: JSON.stringify({ voice: '' }) }); toast(t('audioQueued')); }
+    else if (d.hide) { await api(`/admin/api/books/${d.hide}/hide`, { method: 'POST', body: JSON.stringify({ hidden: d.h === '1' }) }); loadBooks(); }
+    else if (d.del && confirm(t('delQ', d.title))) { await api('/admin/api/books/' + d.del, { method: 'DELETE' }); loadBooks(); loadReports(); }
+    else if (d.wview) viewWerd(d.wview);
+    else if (d.whide) { await api(`/admin/api/werds/${d.whide}/hide`, { method: 'POST', body: JSON.stringify({ hidden: d.h === '1' }) }); loadWerds(); }
+    else if (d.wdel && confirm(t('delQ', d.title))) { await api('/admin/api/werds/' + d.wdel, { method: 'DELETE' }); loadWerds(); }
+  });
+  loadReports(); loadBooks(); loadWerds();
+}
+const viewWerd = guard(async (id) => {
+  const w = await api('/admin/api/werds/' + id);
+  const el = document.createElement('div'); el.className = 'drawer';
+  el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(w.title)}"><div class="ph"><h2 style="font:700 24px Amiri">${esc(w.title)}</h2><span class="end"><button class="btn ghost sm" type="button" data-x>${t('close')}</button></span></div>
+    <div class="muted small">${esc(w.publisher)} · ${when(w.publishedAt)}</div>${w.note ? `<p class="small">${esc(w.note)}</p>` : ''}
+    <ol class="lines">${(w.lines || []).map((it) => `<li>${esc(it.text)}${!w.textOnly && (it.count || 1) > 1 ? `<span>×${fmt(it.count)}</span>` : ''}</li>`).join('')}</ol></div>`;
+  const close = () => { el.remove(); document.removeEventListener('keydown', key); };
+  const key = (e) => e.key === 'Escape' && close();
+  el.onclick = (e) => { if (e.target === el || e.target.closest('[data-x]')) close(); };
+  document.addEventListener('keydown', key);
+  document.body.append(el); $('[data-x]', el).focus();
+});
+const viewBook = guard(async (id) => {
+  const b = await api('/admin/api/books/' + id);
+  const el = document.createElement('div'); el.className = 'drawer';
+  el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(b.title)}"><div class="ph"><h2 style="font:700 24px Amiri">${esc(b.title)}</h2><span class="end"><button class="btn ghost sm" type="button" data-x>${t('close')}</button></span></div>
+    <div class="muted small">${esc(b.author || '')} ${b.madhhab ? '· ' + mad(b.madhhab) : ''}</div>
+    <ol class="lines">${(b.items || []).map((it) => `<li>${esc(it.text)}${(it.count || 1) > 1 ? `<span>×${fmt(it.count)}</span>` : ''}</li>`).join('')}</ol></div>`;
+  const close = () => { el.remove(); document.removeEventListener('keydown', key); };
+  const key = (e) => e.key === 'Escape' && close();
+  el.onclick = (e) => { if (e.target === el || e.target.closest('[data-x]')) close(); };
+  document.addEventListener('keydown', key);
+  document.body.append(el); $('[data-x]', el).focus();
+});
+
+// ====================================================================== settings
+function setView(view, sub) {
+  const subs = ['voices', 'ai', 'pc', 'server', 'backup'];
+  sub = subs.includes(sub) ? sub : 'voices';
+  view.innerHTML = `<div class="subtabs" role="tablist">${subs.map((s) => `<button type="button" role="tab" aria-selected="${s === sub}" class="${s === sub ? 'on' : ''}" data-s="${s}">${t({ voices: 'voices', ai: 'aiReading', pc: 'pcHelper', server: 'server', backup: 'backup' }[s])}</button>`).join('')}</div><div id="sv" style="display:grid;gap:16px"></div>`;
+  view.querySelector('.subtabs').onclick = (e) => { const b = e.target.closest('[data-s]'); if (b) location.hash = '#/settings/' + b.dataset.s; };
+  ({ voices: voicesPane, ai: aiPane, pc: pcPane, server: serverPane, backup: backupPane }[sub])($('#sv'));
+}
+function voicesPane(el) {
+  el.innerHTML = `<section class="panel"><p class="muted" style="margin-top:0">${t('voicesLead')}</p>
+    <div class="form">
+      <label class="f"><span>Gemini API key</span><input type="text" id="gKey" placeholder="AIza…" autocomplete="off"></label>
+      <label class="f"><span>Gemini model</span><input type="text" id="gModel"></label>
+      <label class="f"><span>Gemini style</span><input type="text" id="gStyle" placeholder="calm, reverent"></label>
+      <label class="f"><span>Azure key</span><input type="text" id="aKey" autocomplete="off"></label>
+      <label class="f"><span>Azure region</span><input type="text" id="aRegion" placeholder="uaenorth"></label>
+      <label class="f"><span>ElevenLabs key</span><input type="text" id="eKey" autocomplete="off"></label>
+      <label class="f"><span>ElevenLabs model</span><input type="text" id="eModel"></label>
+      <label class="f"><span>${t('defVoice')}</span><select id="vDefault"></select></label>
+    </div>
+    <label class="check" style="margin-top:14px"><input type="checkbox" id="autoGen">${t('autoGen')}</label>
+    <div class="row" style="margin-top:14px"><button class="btn" type="button" id="vSave">${t('save')}</button><button class="btn ghost" type="button" id="vTest">${icon('speaker')}${t('test')}</button>
+      <button class="btn danger" type="button" id="vClear">${t('clearClips')}</button><span class="muted small" id="ttsMeta"></span></div>
+    <audio id="ttsAudio" controls class="hidden"></audio></section>
+    <section class="panel"><div class="ph"><h2>${t('localVoices')}</h2></div><p class="muted small" style="margin-top:0">${t('localLead')}</p><div id="lv"></div></section>
+    <section class="panel hidden" id="refBox"><div class="ph"><h2>${t('refs')}</h2></div><p class="muted small" style="margin-top:0">${t('refsLead')}</p>
+      <div class="row"><input type="text" id="refName" placeholder="${t('refName')}" style="max-width:220px"><label class="file btn ghost">${t('pickAudio')}<input type="file" id="refFile" accept="audio/*"><span id="refFn"></span></label><button class="btn" type="button" id="refAdd">${t('addRef')}</button></div>
+      <div id="refs" style="margin-top:12px"></div><audio id="refAudio" controls class="hidden" style="margin-top:10px"></audio></section>
+    <section class="panel"><div class="ph"><h2>${t('soundLib')}</h2></div><div id="ttsLib"></div></section>`;
+  let lvTimer = null;
+  const loadLocal = guard(async () => {
+    if (!document.body.contains($('#lv'))) return;
+    const L = await api('/admin/api/voices/local'); let busy = false;
+    const prog = (p) => `<div style="min-width:180px"><div class="bar ${p.phase !== 'downloading' ? 'indet' : ''}"><i class="blue" style="width:${p.total ? Math.round(100 * p.done / p.total) : 0}%"></i></div><span class="sub small muted">${t('ph_' + p.phase)}${p.total && p.phase === 'downloading' ? ' · ' + fmt(p.done / 1e9, 2) + ' / ' + fmt(p.total / 1e9, 1) + ' GB' : ''}</span></div>`;
+    let html = '';
+    if (L.piperSupported) {
+      html += `<div class="scroller"><table class="t stack"><thead><tr><th>${t('voice')}</th><th>${t('size')}</th><th></th></tr></thead><tbody>${L.piper.map((v) => {
+        const p = v.progress, running = p && !p.error; if (running) busy = true;
+        const act = v.installed ? `<span class="st">${t('installed')}</span> <button class="btn ghost sm" type="button" data-try="local:${v.id}">${icon('speaker')}${t('test')}</button> <button class="iconbtn danger" type="button" data-prm="${v.id}" title="${t('removeModel')}" aria-label="${t('removeModel')}">${icon('del')}</button>`
+          : running ? prog(p) : `<button class="btn sm" type="button" data-pin="${v.id}">${t('install')}</button>`;
+        return `<tr><td data-c="wide"><b>${esc(v.name)}</b><span class="sub">${esc(v.detail)}</span>${p && p.error ? `<span class="sub" style="color:var(--red)">${errText(esc(p.error))}</span>` : ''}</td><td class="small">${v.installed ? '' : gb(v.size)}</td><td class="act">${act}</td></tr>`; }).join('')}</tbody></table></div>`;
+    } else html += `<p class="small muted">${t('piperNA')}</p>`;
+    const g = L.gpu;
+    if (g.supported || g.ready) {
+      const p = g.progress, running = p && !p.error; if (running) busy = true;
+      html += `<hr class="sep"><div class="ph"><h2 style="font-size:15px">${t('gpuVoice')}</h2>${g.ready ? `<span class="st">${t('installed')}</span>` : ''}${g.running ? `<span class="st load">${t('loadedNow')}</span>` : ''}</div>
+        <p class="small muted" style="margin-top:0">${t('gpuVoiceLead', esc(g.gpu || 'NVIDIA'))}</p>
+        <div class="row">${g.ready ? `<button class="btn ghost sm" type="button" data-try="local:cb">${icon('speaker')}${t('test')}</button><button class="btn danger sm" type="button" id="gpuRm">${t('removeModel')}</button>`
+          : running ? prog(p) : `<button class="btn" type="button" id="gpuIn">${t('install')} · ~6 GB</button>`}</div>
+        ${p && p.error ? `<div class="notice" style="margin-top:10px">${errText(esc(p.error))}</div>` : ''}${g.log ? `<pre class="log">${esc(g.log)}</pre>` : ''}`;
+    }
+    if (L.pcVoices && L.pcVoices.length) html += `<p class="small muted" style="margin-bottom:0">${t('pcOffers', L.pcVoices.map((v) => v === 'cb' ? 'Chatterbox' : 'Piper · ' + v).join('، '))}${L.pcOnline ? '' : ' · ' + t('pcAsleepShort')}</p>`;
+    $('#lv').innerHTML = html;
+    const showRefs = g.ready || (L.pcVoices || []).includes('cb');
+    $('#refBox').classList.toggle('hidden', !showRefs);
+    $('#refs').innerHTML = (L.refs || []).length ? `<div class="scroller"><table class="t stack"><tbody>${L.refs.map((r) => `<tr><td data-c="wide"><b>${esc(r.name)}</b><span class="sub">${t('sec', fmt(r.secs, 1))} · ${when(r.createdAt)}</span></td>
+      <td class="act"><button class="btn ghost sm" type="button" data-try="local:cb:${r.id}">${icon('speaker')}${t('test')}</button> <button class="iconbtn danger" type="button" data-rdel="${r.id}" title="${t('del')}" aria-label="${t('del')}">${icon('del')}</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty">${t('refsEmpty')}</div>`;
+    clearTimeout(lvTimer); if (busy) lvTimer = setTimeout(loadLocal, 2500);
+  });
+  $('#refFile').onchange = () => { $('#refFn').textContent = $('#refFile').files[0]?.name || ''; };
+  el.addEventListener('click', guard(async (e) => {
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.pin) { await api('/admin/api/voices/piper/' + d.pin, { method: 'POST' }); loadLocal(); }
+    else if (d.prm && confirm(t('removeModelQ'))) { await api('/admin/api/voices/piper/' + d.prm, { method: 'DELETE' }); loadLocal(); load(); }
+    else if (b.id === 'gpuIn') { await api('/admin/api/voices/gpu', { method: 'POST' }); loadLocal(); }
+    else if (b.id === 'gpuRm' && confirm(t('removeModelQ'))) { await api('/admin/api/voices/gpu', { method: 'DELETE' }); loadLocal(); load(); }
+    else if (d.rdel && confirm(t('refDelQ'))) { await api('/admin/api/voices/refs/' + d.rdel, { method: 'DELETE' }); loadLocal(); load(); }
+    else if (d.try) { b.disabled = true; try { await playVoice(d.try, $('#refAudio')); } finally { b.disabled = false; } }
+    else if (b.id === 'refAdd') {
+      const f = $('#refFile').files[0], name = $('#refName').value.trim(); if (!f || !name) { toast(t('refNeed')); return; }
+      b.disabled = true; try { const audio = await toWav(f); await api('/admin/api/voices/refs', { method: 'POST', body: JSON.stringify({ name, audio }) });
+        $('#refName').value = ''; $('#refFile').value = ''; $('#refFn').textContent = ''; toast(t('saved')); loadLocal(); load(); } finally { b.disabled = false; }
+    }
+  }));
+  loadLocal();
+  const load = guard(async () => {
+    const c = await api('/admin/api/tts');
+    $('#gKey').value = c.geminiKey; $('#gModel').value = c.geminiModel; $('#gStyle').value = c.geminiStyle; $('#aKey').value = c.azureKey; $('#aRegion').value = c.azureRegion;
+    $('#eKey').value = c.elevenKey; $('#eModel').value = c.elevenModel; $('#autoGen').checked = !!c.autoGenerate;
+    const prov = (p) => ({ server: t('onServer'), pc: t('onPCshort') }[p] || p);
+    $('#vDefault').innerHTML = (c.voices || []).map((v) => `<option value="${esc(v.id)}" ${v.id === c.default ? 'selected' : ''}>${esc(prov(v.provider))} · ${esc(v.name)}${v.detail ? ' · ' + esc(v.detail) : ''}</option>`).join('') || `<option value="">— ${t('addKey')} —</option>`;
+    $('#ttsMeta').textContent = t('clipsN', pl(c.clips, 'clip'), gb(c.bytes));
+    const lib = c.library || [];
+    $('#ttsLib').innerHTML = lib.length ? `<div class="scroller"><table class="t stack"><thead><tr><th>${t('voice')}</th><th>${t('clips')}</th><th>${t('size')}</th><th></th></tr></thead><tbody>${lib.map((v) =>
+      `<tr><td data-c="wide"><b>${esc(v.name)}</b><span class="sub mono">${esc(v.id)}</span></td><td>${fmt(v.clips)}</td><td>${gb(v.bytes)}</td><td><span class="st ${v.shared ? 'load' : ''}">${v.shared ? t('fromPhones') : t('onServer')}</span></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="empty">${t('soundEmpty')}</div>`;
+  });
+  $('#vSave').onclick = guard(async () => {
+    await api('/admin/api/tts', { method: 'PUT', body: JSON.stringify({ geminiKey: $('#gKey').value, geminiModel: $('#gModel').value, geminiStyle: $('#gStyle').value,
+      azureKey: $('#aKey').value, azureRegion: $('#aRegion').value, elevenKey: $('#eKey').value, elevenModel: $('#eModel').value, default: $('#vDefault').value,
+      autoGenerate: $('#autoGen').checked, autoVoice: '' }) });
+    toast(t('saved')); load();
+  });
+  $('#vTest').onclick = guard(async () => {
+    const r = await fetch('/admin/api/tts/test', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ voice: $('#vDefault').value }) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error?.message || r.statusText);
+    const a = $('#ttsAudio'); a.src = URL.createObjectURL(await r.blob()); a.classList.remove('hidden'); a.play(); load();
+  });
+  $('#vClear').onclick = guard(async () => { if (confirm(t('clearQ'))) { await api('/admin/api/tts/cache', { method: 'DELETE' }); load(); } });
+  load();
+}
+async function playVoice(voice, audioEl) {
+  const r = await fetch('/admin/api/tts/test', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ voice }) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error?.message || r.statusText);
+  audioEl.src = URL.createObjectURL(await r.blob()); audioEl.classList.remove('hidden'); audioEl.play();
+}
+async function toWav(file) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await ctx.decodeAudioData(await file.arrayBuffer()); ctx.close?.();
+  const rate = 24000, secs = Math.min(buf.duration, 15), n = Math.floor(secs * rate);
+  if (buf.duration < 3) throw new Error(t('refShort'));
+  const off = new OfflineAudioContext(1, n, rate), src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+  const ch = (await off.startRendering()).getChannelData(0);
+  const out = new DataView(new ArrayBuffer(44 + n * 2)), w = (o, s) => [...s].forEach((c, i) => out.setUint8(o + i, c.charCodeAt(0)));
+  w(0, 'RIFF'); out.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+  out.setUint32(24, rate, true); out.setUint32(28, rate * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true); w(36, 'data'); out.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, ch[i])) * 32767, true);
+  let bin = ''; const bytes = new Uint8Array(out.buffer); for (let i = 0; i < bytes.length; i += 32768) bin += String.fromCharCode(...bytes.subarray(i, i + 32768));
+  return btoa(bin);
+}
+let ocrTimer = null;
+const MODEL_AR = { qari4: 'مصنوع للعربية بالتشكيل · نحو 3.3 GB · الأدق', qari2: 'مصنوع للعربية بالتشكيل · نحو 2.4 GB · الأسرع', qwen25vl3b: 'نموذج رؤية عام · نحو 2.8 GB', 'gemma3-4b': 'نموذج رؤية عام (Google) · نحو 3.3 GB' };
+function aiPane(el) {
+  el.innerHTML = `<section class="panel"><p class="muted" style="margin-top:0">${t('aiLead')}</p><div id="engine" class="small" style="margin-bottom:10px"></div><div id="engRep"></div><div id="cuda"></div><div id="models"></div></section>
+    <section class="panel"><div class="ph"><h2>${t('addModel')}</h2></div><p class="small muted" style="margin-top:0">${t('addModelLead')}</p>
+    <div class="row"><label class="check"><input type="radio" name="mby" value="link" checked>${t('byLink')}</label><label class="check"><input type="radio" name="mby" value="file">${t('byFile')}</label></div>
+    <div class="form" style="margin-top:12px"><label class="f"><span>${t('modelName')}</span><input type="text" id="mName" placeholder="QARI 0.5"></label>
+    <label class="f mlink"><span>${t('modelUrl')}</span><input type="url" id="mUrl" dir="ltr" placeholder="https://huggingface.co/…/resolve/main/model.gguf"></label>
+    <label class="f mlink"><span>${t('projUrl')}</span><input type="url" id="pUrl" dir="ltr" placeholder="https://huggingface.co/…/resolve/main/mmproj.gguf"></label>
+    <label class="f mfile hidden"><span>${t('modelPath')}</span><input type="text" id="mPath" dir="ltr" placeholder="D:\\models\\model.gguf"></label>
+    <label class="f mfile hidden"><span>${t('projPath')}</span><input type="text" id="pPath" dir="ltr" placeholder="D:\\models\\mmproj.gguf"></label>
+    <label class="f"><span>${t('promptL')}</span><select id="mPrompt"><option value="arabic">${t('promptArabic')}</option><option value="qari">${t('promptQari')}</option><option value="own">${t('promptOwn')}</option></select></label>
+    <label class="f hidden" id="ownWrap" style="grid-column:1/-1"><span>${t('promptOwn')}</span><textarea id="mOwn" rows="3" dir="ltr"></textarea></label></div>
+    <div class="row" style="margin-top:12px"><button class="btn" type="button" id="mAdd">${t('add')}</button><span class="small" id="mErr" style="color:var(--red)"></span></div></section>
+    <section class="panel"><div class="ph"><h2>${t('tryPage')}</h2></div>
+    <div class="row"><label class="file btn ghost">${t('pickPhoto')}<input type="file" id="ocrFile" accept="image/*"><span id="ocrName"></span></label><select id="ocrPick" style="max-width:260px"></select><button class="btn" type="button" id="ocrGo">${t('read')}</button><span class="muted small" id="ocrMeta"></span></div>
+    <textarea class="out hidden" id="ocrOut" style="margin-top:12px"></textarea></section>`;
+  const load = guard(async () => {
+    if (!document.body.contains($('#models'))) return;
+    if (state.diskFree == null) { const dd = state.dash || await api('/admin/api/dashboard'); state.dash = dd; state.diskFree = dd.system.diskTotal ? dd.system.diskTotal - dd.system.diskUsed : Infinity; }
+    const o = await api('/admin/api/ocr'); let busy = false;
+    const loaded = state.dash?.ocr?.loaded;
+    const rp = o.report;
+    $('#engine').innerHTML = o.engine ? `<span class="st">${t('engineOk')}</span> <span class="muted">${esc(o.os)} · ${t('cores', o.cpus)}${o.onGpu ? ' · ' + t('gpuReadOn') : ''}${rp && rp.cuda && rp.onCard && rp.layers ? ' · ' + t('onCardOk', esc(rp.layers)) : ''}</span>` : `<div class="notice">${t('engineMissing', esc(o.os))}</div>`;
+    $('#engRep').innerHTML = rp && rp.cuda && rp.problem ? `<div class="notice ${rp.onCard ? 'amber' : ''}" style="margin-bottom:12px">${icon('gpu')}<span>${t(rp.onCard ? 'partialCard' : 'cpuFallback', errText(esc(rp.problem)))}</span></div>` : '';
+    const vram = o.gpu && o.gpu.memTotal ? o.gpu.memTotal * 1048576 : 0;
+    const cu = o.cuda || {};
+    if (cu.supported || cu.installed) {
+      const p = cu.progress, running = p && !p.error; if (running) busy = true;
+      $('#cuda').innerHTML = `<div class="notice amber" style="background:var(--surface2);color:var(--ink);margin-bottom:12px">${icon('gpu')}<span><b>${t('gpuRead')}</b><br><span class="small muted">${t('gpuReadLead', esc(o.gpu?.name || 'NVIDIA'))}</span>${p && p.error ? `<br><span class="small" style="color:var(--red)">${errText(esc(p.error))}</span>` : ''}</span>
+        ${cu.installed ? `<span class="st">${t('installed')}</span><button class="iconbtn danger" type="button" data-cuda-rm="1" title="${t('removeModel')}" aria-label="${t('removeModel')}">${icon('del')}</button>`
+          : running ? `<div style="min-width:180px;margin-inline-start:auto"><div class="bar ${p.phase !== 'downloading' ? 'indet' : ''}"><i class="blue" style="width:${p.total ? Math.round(100 * p.done / p.total) : 0}%"></i></div><span class="small muted">${t('ph_' + p.phase)} · ${fmt(p.done / 1e9, 2)} / ${fmt(p.total / 1e9, 1)} GB</span></div>`
+          : `<button class="btn sm" type="button" data-cuda="1">${t('install')} · 660 MB</button>`}</div>`;
+    } else $('#cuda').innerHTML = '';
+    $('#models').innerHTML = `<div class="scroller"><table class="t stack"><thead><tr><th>${t('model')}</th><th>${t('size')}</th><th></th></tr></thead><tbody>${o.models.map((m) => {
+      const dl = !m.installed && m.total && !m.error; if (dl) busy = true;
+      const need = (m.files || []).reduce((n, f) => n + f.size, 0), free = state.diskFree ?? Infinity, noRoom = !m.installed && !dl && need > free;
+      const act = m.installed
+        ? `${m.id === o.default ? `<span class="st">${t('default')}</span>` : `<button class="btn ghost sm" type="button" data-def="${m.id}">${t('makeDefault')}</button>`} <button class="iconbtn danger" type="button" ${m.custom ? 'data-crm' : 'data-rm'}="${m.id}" title="${t('removeModel')}" aria-label="${t('removeModel')}">${icon('del')}</button>`
+        : m.custom && !dl && !m.error ? `<button class="iconbtn danger" type="button" data-crm="${m.id}" title="${t('removeModel')}" aria-label="${t('removeModel')}">${icon('del')}</button>`
+        : dl ? `<div style="min-width:180px"><div class="bar"><i class="blue" style="width:${Math.round(100 * m.done / m.total)}%"></i></div><span class="sub small muted">${fmt(m.done / 1e9, 2)} / ${fmt(m.total / 1e9, 1)} GB</span></div>`
+        : noRoom ? `<span class="small muted">${t('noRoom', gb(need), gb(free))}</span>` : `<button class="btn sm" type="button" data-dl="${m.id}">${t('download')}</button>`;
+      const size = m.size || need, fits = vram && size ? size * 1.15 < vram : null;
+      const facts = [m.secsPerPage ? t('secsPage', fmt(m.secsPerPage, m.secsPerPage < 10 ? 1 : 0)) : '', fits === true ? t('fitsCard') : fits === false ? t('tooBigCard') : ''].filter(Boolean).join(' · ');
+      return `<tr><td data-c="wide"><b>${esc(m.name)}</b>${m.custom ? ` <span class="pill gold">${t('yours')}</span>` : ''}<span class="sub">${esc(m.custom ? m.detail.replace(/^Added by you( · )?/, '') : lang === 'ar' ? (MODEL_AR[m.id] || m.detail) : m.detail)}</span>${facts ? `<span class="sub">${facts}</span>` : ''}${m.error ? `<span class="sub" style="color:var(--red)">${esc(m.error)}</span>` : ''}</td>
+        <td class="small">${m.installed ? gb(m.bytes) : ''}</td><td class="act">${act}</td></tr>`; }).join('')}</tbody></table></div>`;
+    const inst = o.models.filter((m) => m.installed);
+    if (!$('#ocrPick').dataset.set || $('#ocrPick').options.length !== inst.length) {
+      $('#ocrPick').innerHTML = inst.length ? inst.map((m) => `<option value="${m.id}" ${m.id === o.default ? 'selected' : ''}>${esc(m.name)}</option>`).join('') : `<option value="">—</option>`;
+      $('#ocrPick').dataset.set = '1';
+    }
+    clearTimeout(ocrTimer); if (busy) ocrTimer = setTimeout(load, 2000);
+  });
+  $('#ocrFile').onchange = () => { $('#ocrName').textContent = $('#ocrFile').files[0]?.name || ''; };
+  el.querySelectorAll('input[name=mby]').forEach((r) => r.onchange = () => { const f = el.querySelector('input[name=mby]:checked').value === 'file';
+    el.querySelectorAll('.mlink').forEach((x) => x.classList.toggle('hidden', f)); el.querySelectorAll('.mfile').forEach((x) => x.classList.toggle('hidden', !f)); });
+  $('#mPrompt').onchange = () => $('#ownWrap').classList.toggle('hidden', $('#mPrompt').value !== 'own');
+  el.onclick = guard(async (e) => {
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.dl) { await api(`/admin/api/ocr/models/${d.dl}/download`, { method: 'POST' }); load(); }
+    else if (d.cuda) { await api('/admin/api/ocr/cuda', { method: 'POST' }); load(); }
+    else if (d.cudaRm && confirm(t('removeModelQ'))) { await api('/admin/api/ocr/cuda', { method: 'DELETE' }); load(); }
+    else if (d.def) { await api('/admin/api/ocr', { method: 'PUT', body: JSON.stringify({ default: d.def }) }); load(); }
+    else if (d.rm && confirm(t('removeModelQ'))) { await api('/admin/api/ocr/models/' + d.rm, { method: 'DELETE' }); load(); }
+    else if (d.crm && confirm(t('removeCustomQ'))) { await api('/admin/api/ocr/custom/' + d.crm, { method: 'DELETE' }); load(); }
+    else if (b.id === 'mAdd') {
+      const byFile = el.querySelector('input[name=mby]:checked').value === 'file', pr = $('#mPrompt').value;
+      const body = { name: $('#mName').value.trim(), prompt: pr === 'own' ? $('#mOwn').value.trim() : pr,
+        ...(byFile ? { modelPath: $('#mPath').value.trim(), projPath: $('#pPath').value.trim() } : { modelUrl: $('#mUrl').value.trim(), projUrl: $('#pUrl').value.trim() }) };
+      $('#mErr').textContent = ''; b.disabled = true;
+      try { await api('/admin/api/ocr/custom', { method: 'POST', body: JSON.stringify(body) }); toast(t('addedT')); ['mName', 'mUrl', 'pUrl', 'mPath', 'pPath', 'mOwn'].forEach((i) => $('#' + i).value = ''); load(); }
+      catch (err) { $('#mErr').textContent = err.message; } finally { b.disabled = false; }
+    }
+    else if (b.id === 'ocrGo') {
+      const f = $('#ocrFile').files[0]; if (!f) { toast(t('pickPhoto')); return; }
+      $('#ocrMeta').textContent = t('reading'); b.disabled = true; const t0 = Date.now();
+      try { const r = await api('/admin/api/ocr/test', { method: 'POST', body: JSON.stringify({ image: await shrink(f), model: $('#ocrPick').value }) });
+        $('#ocrOut').classList.remove('hidden'); $('#ocrOut').value = r.text; $('#ocrMeta').textContent = t('sec', fmt((Date.now() - t0) / 1000)) + ' · ' + r.model; }
+      catch (err) { $('#ocrMeta').textContent = err.message; } finally { b.disabled = false; }
+    }
+  });
+  load();
+}
+function shrink(file, max = 1600) {
+  return new Promise((res, rej) => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(img.src); res(c.toDataURL('image/jpeg', 0.9).split(',')[1]); }; img.onerror = rej; img.src = URL.createObjectURL(file); });
+}
+function pcPane(el) {
+  el.innerHTML = `<section class="panel"><div class="ph"><h2>${t('pcTitle')}</h2><span class="end" id="pcState"></span></div><p class="muted" style="margin-top:0">${t('pcLead')}</p>
+      <div id="pcMain"></div></section>
+    <section class="panel" id="pcClientBox"><div class="ph"><h2>${t('helpOther')}</h2><span class="end" id="cState"></span></div><p class="muted" style="margin-top:0">${t('helpLead')}</p>
+      <div class="form"><label class="f"><span>${t('mainAddr')}</span><input type="text" id="cUrl" placeholder="http://192.168.1.20:8080, http://100.101.102.103:8080" dir="ltr"></label>
+      <label class="f"><span>${t('pcKey')}</span><input type="text" id="cKey" placeholder="wh-…" dir="ltr" autocomplete="off"></label></div>
+      <p class="small muted">${t('mainAddrHint')}</p>
+      <label class="check"><input type="checkbox" id="cOn">${t('helpOn')}</label>
+      <div class="row" style="margin-top:12px"><button class="btn" type="button" id="cSave">${t('save')}</button></div></section>`;
+  let timer = null;
+  const load = guard(async () => {
+    if (!document.body.contains($('#pcMain'))) return;
+    const r = await api('/admin/api/helper'), h = r.helper, s = h.status, cs = r.clientState, docker = r.docker;
+    $('#pcState').innerHTML = !s ? `<span class="st wait">${t('pcNever')}</span>` : h.online ? `<span class="st">${t('pcOnline')}</span>` : `<span class="st wait">${t('pcAsleep', ago(h.seen))}</span>`;
+    const addrs = (r.addresses || []).map((a) => `<code>${esc(a.url)}</code>`).join(' ') || `<code>${esc(location.origin)}</code>`;
+    $('#pcMain').innerHTML = `${h.configured ? `<div class="keyrow"><span class="small muted">${t('pcKey')}</span><code id="pcKey">${esc(h.key)}</code><button class="btn ghost sm" type="button" id="pcCopy">${icon('copy')}${t('copy')}</button><button class="btn ghost sm" type="button" id="pcNew">${t('newKey')}</button></div>
+        <p class="small" style="margin:10px 0 4px">${t('pcSteps')}</p><div class="small">${t('thisAddr')} ${addrs}</div>`
+        : `<button class="btn" type="button" id="pcNew">${t('pcStart')}</button>`}
+      ${s ? `<hr class="sep"><dl class="kv"><dt>${t('machine')}</dt><dd>${esc(s.name)} · ${esc(s.os)} · ${t('cores', s.cores)}</dd>
+        ${s.gpu ? `<dt>${t('gpuL')}</dt><dd>${esc(s.gpu.name)}</dd>` : ''}
+        <dt>${t('aiReading')}</dt><dd>${s.ocr.engine ? (s.ocr.models.length ? s.ocr.models.map((m) => esc(modelLabel(m))).join('، ') : t('pcNoModels')) + (s.ocr.gpu ? ' · ' + t('gpuReadOn') : '') : '—'}</dd>
+        <dt>${t('voices')}</dt><dd>${(s.voices || []).length ? s.voices.map((v) => v === 'cb' ? 'Chatterbox' : 'Piper · ' + esc(v)).join('، ') : '—'}</dd>
+        <dt>${t('version', '').trim()}</dt><dd>${esc(s.version)}</dd></dl>
+        ${h.online && s.ocr.engine ? `<div class="row" style="margin-top:10px"><span class="small muted">${t('dlOnPC')}:</span>${['qari4', 'qari2', 'qwen25vl3b', 'gemma3-4b'].filter((m) => !s.ocr.models.includes(m)).map((m) => `<button class="btn ghost sm" type="button" data-pcdl="${m}">${esc(modelLabel(m))}</button>`).join('') || `<span class="small muted">—</span>`}</div>` : ''}
+        <hr class="sep">
+        <label class="check"><input type="checkbox" id="pcPrefer" ${h.prefer ? 'checked' : ''}>${t('preferOn')}</label>
+        <label class="check" style="margin-top:10px"><input type="checkbox" id="pcWakeOn" ${h.wake ? 'checked' : ''}>${t('wakeOn')}</label>
+        <div class="form" style="margin-top:12px"><label class="f"><span>${t('macL')}</span><input type="text" id="pcMac" value="${esc(h.mac)}" placeholder="AA:BB:CC:DD:EE:FF" dir="ltr"></label></div>
+        <p class="small muted">${h.mac && !h.manual ? t('macAuto') + ' · ' : ''}${t('macHint')}${docker ? ' ' + t('macDocker') : ''}</p>
+        <div class="row"><button class="btn" type="button" id="pcSave">${t('save')}</button>${h.mac ? `<button class="btn ghost" type="button" id="pcWakeBtn">${icon('power')}${t('wakeNow')}</button>` : ''}</div>` : ''}`;
+    $('#pcClientBox').classList.toggle('hidden', !!docker);
+    if (!$('#cUrl').dataset.set) { $('#cUrl').value = r.client.url || ''; $('#cKey').value = r.client.key || ''; $('#cOn').checked = !!r.client.on; $('#cUrl').dataset.set = '1'; }
+    $('#cState').innerHTML = !r.client.on ? `<span class="st wait">${t('cOff')}</span>` : cs.connected ? `<span class="st">${t('cConnected', esc(cs.server), fmt(cs.done))}</span>` : `<span class="st err">${t('cError', esc(cs.error || '…'))}</span>`;
+    clearTimeout(timer); timer = setTimeout(load, 5000);
+  });
+  el.onclick = guard(async (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'pcNew') { if (!$('#pcKey') || confirm(t('newKeyQ'))) { await api('/admin/api/helper', { method: 'PUT', body: JSON.stringify({ newKey: true }) }); load(); } }
+    else if (b.id === 'pcCopy') { try { await navigator.clipboard.writeText($('#pcKey').textContent); toast(t('copied')); } catch { getSelection().selectAllChildren($('#pcKey')); } }
+    else if (b.id === 'pcSave') { await api('/admin/api/helper', { method: 'PUT', body: JSON.stringify({ wake: $('#pcWakeOn').checked, prefer: $('#pcPrefer').checked, mac: $('#pcMac').value }) }); toast(t('saved')); load(); }
+    else if (b.id === 'pcWakeBtn') { await api('/admin/api/helper/wake', { method: 'POST' }); toast(t('wakeSent')); }
+    else if (b.dataset.pcdl) { await api('/admin/api/helper/models/' + b.dataset.pcdl, { method: 'POST' }); toast(t('dlStarted')); }
+    else if (b.id === 'cSave') { await api('/admin/api/helper/client', { method: 'PUT', body: JSON.stringify({ url: $('#cUrl').value, key: $('#cKey').value, on: $('#cOn').checked }) }); toast(t('saved')); setTimeout(load, 1500); }
+  });
+  load();
+}
+const modelLabel = (id) => ({ qari4: 'QARI-OCR 0.4 (4B)', qari2: 'QARI-OCR 0.2 (2B)', qwen25vl3b: 'Qwen2.5-VL 3B', 'gemma3-4b': 'Gemma 3 4B' }[id] || id);
+function serverPane(el) {
+  el.innerHTML = `<section class="panel"><dl class="kv" id="kv"><dd>…</dd></dl></section><section class="panel"><div class="ph"><h2>${t('addresses')}</h2></div><p class="muted small" style="margin-top:0">${t('addrHint')}</p><div id="addrs"></div></section>`;
+  guard(async () => {
+    const d = state.dash || await api('/admin/api/dashboard'); const s = d.system;
+    $('#kv').innerHTML = [[t('version', '').trim(), esc(d.version)], [t('machine'), esc(s.machine || '—')], [t('system'), esc(s.os) + (s.docker ? ' · ' + t('inDocker') : '') + ' · ' + t('cores', s.cores)],
+      [t('uptime'), span(Date.now() - s.startedAt)], [t('dataDir'), `<code>${esc(d.dataDir)}</code>`], [t('dataSize'), gb(s.dataBytes)], [t('modelsSize'), gb(s.modelBytes)],
+      [t('memory'), s.memTotal ? `${gb(s.memUsed)} / ${gb(s.memTotal)}` : '—'], [t('disk'), s.diskTotal ? `${gb(s.diskUsed)} / ${gb(s.diskTotal)}` : '—']]
+      .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+    const a = d.addresses || [];
+    $('#addrs').innerHTML = `<div class="scroller"><table class="t"><tbody>${a.map((x) => `<tr><td><code>${esc(x.url)}</code></td><td class="muted small">${esc(x.kind)}</td></tr>`).join('') || `<tr><td><code>${esc(location.origin)}</code></td></tr>`}</tbody></table></div>`;
+  })();
+}
+function backupPane(el) {
+  el.innerHTML = `<section class="panel"><p style="margin-top:0">${t('backupLead')}</p><a class="btn" href="/admin/api/backup?token=${encodeURIComponent(token)}">${t('downloadBackup')}</a></section>`;
+}
+
+// ====================================================================== search
+const SETTINGS_INDEX = () => [['voices', t('voices')], ['ai', t('aiReading')], ['pc', t('pcHelper')], ['server', t('server')], ['backup', t('backup')]];
+let searchSel = -1;
+$('#q').addEventListener('input', guard(async () => {
+  const q = $('#q').value.trim().toLowerCase(); const box = $('#results');
+  if (!q) { box.classList.add('hidden'); return; }
+  if (!state.families) state.families = (await api('/admin/api/families')).families;
+  const people = state.families.flatMap((f) => f.members.map((m) => ({ ...m, fam: f.name }))).filter((m) => (m.name || '').toLowerCase().includes(q)).slice(0, 5);
+  const { books } = await api('/admin/api/books?q=' + encodeURIComponent(q));
+  const sets = SETTINGS_INDEX().filter(([, n]) => n.toLowerCase().includes(q));
+  const items = [...people.map((p) => `<a href="#/families" role="option">${icon('person')}<span>${esc(p.name)}</span><small>${esc(p.fam || t('noFamily'))}</small></a>`),
+    ...books.slice(0, 5).map((b) => `<a href="#/library" data-book="${b.id}" role="option">${icon('book')}<span>${esc(b.title)}</span><small>${t('library')}</small></a>`),
+    ...sets.map(([k, n]) => `<a href="#/settings/${k}" role="option">${icon('settings')}<span>${esc(n)}</span><small>${t('settings')}</small></a>`)];
+  box.innerHTML = items.join('') || `<div class="none">${t('noResults')}</div>`; box.classList.remove('hidden'); searchSel = -1;
+}));
+$('#q').addEventListener('keydown', (e) => {
+  const links = [...$('#results').querySelectorAll('a')]; if (!links.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); searchSel = (searchSel + (e.key === 'ArrowDown' ? 1 : -1) + links.length) % links.length; links.forEach((a, i) => a.classList.toggle('on', i === searchSel)); }
+  if (e.key === 'Enter' && searchSel >= 0) { e.preventDefault(); links[searchSel].click(); }
+  if (e.key === 'Escape') { $('#results').classList.add('hidden'); }
+});
+$('#results').addEventListener('click', (e) => { const a = e.target.closest('a'); if (!a) return; $('#results').classList.add('hidden'); $('#q').value = ''; if (a.dataset.book) setTimeout(() => viewBook(a.dataset.book), 50); });
+document.addEventListener('click', (e) => { if (!e.target.closest('.search')) $('#results').classList.add('hidden'); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && pollTimer && (location.hash || '#/dashboard').startsWith('#/dashboard')) { stopPoll(); route(); } });
+
+// ====================================================================== boot
+applyLang();
+if (token) api('/admin/api/stats').then(start).catch(() => showLogin()); else showLogin();
+</script>
+</body>
+</html>

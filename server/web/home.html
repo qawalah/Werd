@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08452F">
+<title>ورد · Werd</title>
+<link rel="icon" href="/app/icon-192.png">
+<style>
+@font-face { font-family: Tajawal; font-weight: 400; src: url(/app/fonts/tajawal_regular.ttf); font-display: swap; }
+@font-face { font-family: Tajawal; font-weight: 500; src: url(/app/fonts/tajawal_medium.ttf); font-display: swap; }
+@font-face { font-family: Tajawal; font-weight: 700; src: url(/app/fonts/tajawal_bold.ttf); font-display: swap; }
+@font-face { font-family: Amiri; font-weight: 700; src: url(/app/fonts/amiri_bold.ttf); font-display: swap; }
+:root { --bg: #FBF7EE; --surface: #FFFFFF; --ink: #1D2520; --muted: #66655A; --line: #EADFC4; --primary: #0E6B4E; --primary-soft: #DCEDE3; --deep: #08452F;
+  --gold: #C19A3E; --gold-soft: #E9D7A6; --surface2: #F5EEDD; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0F1513; --surface: #162019; --ink: #ECE7DA; --muted: #A3A495; --line: #2A3931; --primary: #4FB08A; --primary-soft: #1D3A2E;
+  --deep: #0A3324; --gold: #D8B65C; --gold-soft: #E3CF94; --surface2: #1C2922; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 Tajawal, system-ui, "Segoe UI", Tahoma, sans-serif; display: flex; flex-direction: column; }
+::selection { background: var(--gold-soft); color: #4A3A10; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 10px; }
+html[lang=ar] [lang=en], html[lang=en] [lang=ar] { display: none !important; }
+.wrap { width: min(980px, 100%); margin: 0 auto; padding: 22px 20px 40px; flex: 1; display: flex; flex-direction: column; gap: 22px; }
+.top { display: flex; align-items: center; justify-content: space-between; }
+.mark { font: 700 34px/1 Amiri, serif; color: var(--primary); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 2px; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font: 500 14px Tajawal, sans-serif; color: var(--muted); }
+.seg button.on { background: var(--primary); color: #fff; }
+.hero { background: var(--deep); color: #E8EFE9; border-radius: 22px; padding: 30px 30px 26px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; opacity: .08; background-size: 96px; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23E9D7A6' stroke-width='1.6'%3E%3Crect x='35' y='35' width='50' height='50'/%3E%3Crect x='35' y='35' width='50' height='50' transform='rotate(45 60 60)'/%3E%3Ccircle cx='60' cy='60' r='11'/%3E%3Cpath d='M0 0L25 25M120 0L95 25M0 120L25 95M120 120L95 95'/%3E%3C/g%3E%3C/svg%3E"); }
+.hero > * { position: relative; }
+.hero h1 { margin: 0; font: 700 clamp(44px, 8vw, 72px)/1.05 Amiri, serif; color: #E9D7A6; }
+.hero p { margin: 8px 0 0; color: #CFE0D6; max-width: 46ch; }
+.live { display: inline-flex; gap: 8px; align-items: center; margin-top: 18px; font-size: 14px; color: #CFE0D6; }
+.live i { width: 9px; height: 9px; border-radius: 50%; background: #5ED19C; }
+.doors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.door { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 22px; border-radius: 18px; background: var(--surface);
+  border: 1px solid var(--line); text-decoration: none; color: var(--ink); transition: border-color .2s, transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s; }
+.door:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(8, 69, 47, .09); }
+.door .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.door.admin .ic { background: var(--surface2); color: var(--gold); }
+.door svg { width: 26px; height: 26px; fill: currentColor; }
+.door b { display: block; font-size: 20px; }
+.door span { color: var(--muted); font-size: 14px; }
+.door .go { color: var(--muted); font-size: 22px; }
+html[dir=ltr] .door .go { transform: scaleX(-1); }
+.connect { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 22px; display: grid; gap: 6px; }
+.connect b { font-size: 16px; }
+.connect span { color: var(--muted); font-size: 14px; }
+.connect code { justify-self: start; font: 600 15px ui-monospace, Menlo, Consolas, monospace; background: var(--surface2); padding: 6px 10px; border-radius: 8px; direction: ltr; margin-top: 4px; }
+.nums { display: flex; gap: 22px; color: var(--muted); font-size: 14px; }
+.nums b { color: var(--ink); font-size: 18px; margin-inline-end: 4px; font-variant-numeric: tabular-nums; }
+@media (max-width: 680px) { .doors { grid-template-columns: 1fr; } .hero { padding: 24px 20px 20px; } .nums { flex-wrap: wrap; gap: 10px 18px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<script>try { document.documentElement.lang = localStorage.getItem('werdLang') || 'ar'; document.documentElement.dir = document.documentElement.lang === 'ar' ? 'rtl' : 'ltr'; } catch {}</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="mark">ورد</span><div class="seg" id="lang"><button type="button" data-l="ar">عربي</button><button type="button" data-l="en">EN</button></div></div>
+  <section class="hero">
+    <h1>ورد</h1>
+    <p><span lang="ar">خادم العائلة: مكتبة مشتركة، وعائلة يتابع فيها الأولياء أوراد أبنائهم، وأصوات وقراءة للكتب تُصنع مرة واحدة للجميع.</span>
+       <span lang="en">The family server: a shared library, a family where parents follow their children's awrad, and voices and book reading made once for everyone.</span></p>
+    <div class="live"><i></i><span lang="ar">الخادم يعمل · الإصدار {{.Version}}</span><span lang="en">Server running · version {{.Version}}</span></div>
+  </section>
+  <nav class="doors">
+    <a class="door" href="/app/"><span class="ic"><svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2M6 4h5v8l-2.5-1.5L6 12z"/></svg></span>
+      <div><b lang="ar">افتح «ورد»</b><b lang="en">Open Werd</b><span lang="ar">أورادك وعدّادك والمكتبة والعائلة في المتصفح</span><span lang="en">Your awrad, counter, library and family in the browser</span></div><span class="go">‹</span></a>
+    <a class="door admin" href="/admin"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg></span>
+      <div><b lang="ar">لوحة الخادم</b><b lang="en">Server dashboard</b><span lang="ar">الحمل والنشاط والعائلات والمكتبة والإعدادات</span><span lang="en">Load, activity, families, library and settings</span></div><span class="go">‹</span></a>
+  </nav>
+  <section class="connect">
+    <b lang="ar">ربط تطبيق الهاتف</b><b lang="en">Connect the phone app</b>
+    <span lang="ar">في التطبيق: الإعدادات ← خادم المكتبة والعائلة ← عنوان الخادم</span><span lang="en">In the app: Settings → Library &amp; family server → Server address</span>
+    <code>{{.URL}}</code>
+  </section>
+  <div class="nums"><span><b>{{.S.Users}}</b><span lang="ar">أشخاص</span><span lang="en">people</span></span><span><b>{{.S.Families}}</b><span lang="ar">عائلات</span><span lang="en">families</span></span><span><b>{{.S.Books}}</b><span lang="ar">كتب في المكتبة</span><span lang="en">books in the library</span></span></div>
+</div>
+<script>
+const seg = document.getElementById('lang');
+const paint = () => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.l === document.documentElement.lang));
+seg.onclick = (e) => { const b = e.target.closest('[data-l]'); if (!b) return; document.documentElement.lang = b.dataset.l; document.documentElement.dir = b.dataset.l === 'ar' ? 'rtl' : 'ltr'; try { localStorage.setItem('werdLang', b.dataset.l); } catch {} paint(); };
+paint();
+</script>
+</body>
+</html>

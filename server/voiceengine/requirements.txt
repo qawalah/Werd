@@ -1,0 +1,8 @@
+# The graphics-card voice (Chatterbox Multilingual) run by engine.py.
+# You don't install these by hand: the server sets up its own Python with uv (Dashboard → Voices → graphics-card voice),
+# into data/voices/gpu/venv, with the CUDA 12.4 build of PyTorch from https://download.pytorch.org/whl/cu124.
+# Pinned to what localvoice.go installs; change both together.
+torch==2.6.0
+torchaudio==2.6.0
+chatterbox-tts==0.1.7
+numpy

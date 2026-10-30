@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- camera photos taken for text recognition -->
+    <cache-path name="ocr" path="ocr/" />
+    <!-- book files shared to other apps -->
+    <cache-path name="share" path="share/" />
+</paths>
