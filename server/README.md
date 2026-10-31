@@ -3,7 +3,7 @@
 The shared **library** and **family** features of the Werd app run on this server. Everything else in the app works without it.
 One program, two ways to run it: **Windows** (`werd-server.exe`) or **Docker** on a NAS.
 
-> **بالعربية باختصار:** شغّل `werd-server.exe` على حاسوب ويندوز، أو انسخ مجلد «Werd Server for NAS» كاملاً إلى جهاز NAS وأنشئ منه مشروعاً في Container Manager (يُبنى تلقائياً).
+> **بالعربية باختصار:** شغّل `werd-server.exe` على حاسوب ويندوز، أو ضع ملف `docker-compose.yml` في مجلد على جهاز NAS وأنشئ منه مشروعاً في Container Manager (الصورة جاهزة على ghcr.io، ويثبّت Watchtower الإصدارات الجديدة تلقائياً).
 > ثم في التطبيق: الإعدادات ← خادم المكتبة والعائلة ← اكتب «عنوان البيت» (مثل `192.168.1.20:8080`، بدون https) و«عنوان Tailscale» إن وُجد (مثل `100.101.102.103:8080`) واضغط «حفظ واختبار».
 > يتنقّل التطبيق بين العنوانين تلقائياً: في البيت يستخدم عنوان البيت، وخارجه يستخدم Tailscale.
 > كلمة مرور لوحة الإدارة في ملف `admin-token.txt` داخل مجلد البيانات. انسخ مجلد البيانات احتياطياً.
@@ -33,46 +33,41 @@ Data lives in `C:\ProgramData\Werd Server` (database `werd.db`, `admin-token.txt
 
 ## NAS / Docker
 
-Use the **Werd Server for NAS** folder (from `Werd-Server-Docker.zip`). It contains:
+The image is built on GitHub for every new server version and published privately to `ghcr.io/qawalah/werd-server`
+(Intel/AMD NAS only). The NAS needs just `docker-compose.yml`, and Watchtower installs new versions by itself.
 
-```
-docker-compose.yml   ← the only file you open; Container Manager uses it
-Dockerfile           ← how the image is built (used automatically)
-dist/linux/          ← the server program for Intel/AMD, ARM64 and older ARM NAS
-README.md
-```
-
-The image is **built on the NAS** the first time (under a minute). It picks the right program for your NAS's processor
-by itself — no image file to import and nothing to choose. The NAS needs internet once, to fetch two small base images
-from Google's registry (gcr.io).
+**Once per NAS:** a read-only GitHub token, `docker login ghcr.io` and Watchtower. Follow `docs/nas-setup.md` in
+DevStore (`qawalah/devstore`). It also covers moving an existing NAS install (the old folder that built the image on
+the NAS) without losing data.
 
 ### Synology (Container Manager)
 
-1. In File Station, copy the whole folder to the NAS, e.g. `/docker/Werd App` — all of it, not only `docker-compose.yml`.
-2. Container Manager → **Project → Create** → name `werd`, path `/docker/Werd App`, it finds `docker-compose.yml` → Next → Done.
-   It builds the image and starts the server.
+1. In File Station, create a folder such as `/docker/werd` and put `docker-compose.yml` in it.
+2. Container Manager → **Project → Create** → name `werd`, path `/docker/werd`, it finds `docker-compose.yml` → Next → Done.
+   It downloads the image and starts the server.
 3. Open `http://<NAS address>:8080` in a browser — you should see “Server is running”.
-   The admin password is in `/docker/Werd App/data/admin-token.txt`.
+   The admin password is in `/docker/werd/data/admin-token.txt`.
 
 **Tailscale:** in `docker-compose.yml`, remove the `#` before `WERD_URLS` and put the NAS's home and Tailscale
 addresses there (the Tailscale one is shown in the Tailscale app/admin console, it starts with `100.`). Phones then
 learn both and switch by themselves. Rebuild/restart the project after editing.
 
-### QNAP, Unraid, TrueNAS, Portainer, or any Docker host (command line)
+### Any other Intel/AMD Docker host (command line)
 
 ```
-cd "/volume1/docker/Werd App"      # the copied folder
+cd /volume1/docker/werd            # the folder with docker-compose.yml
 docker compose up -d
 docker compose logs werd           # shows the admin password on first start
 ```
 
 The database and admin password are in `./data` inside that folder — include it in your NAS backups.
-Change the left side of `"8080:8080"` in `docker-compose.yml` if port 8080 is taken.
+If port 8080 is taken, set `WERD_ADDR=:8090` (or another port) in `docker-compose.yml`.
 
 **Errors?**
-- *“unable to prepare context … Dockerfile: no such file or directory”* — only `docker-compose.yml` was copied; copy the
-  `Dockerfile` and `dist` folder next to it.
-- *“Unsupported processor”* — the NAS isn't amd64/arm64/armv7 (very old models); use the Windows version on a PC instead.
+- *“pull access denied”*, *“unauthorized”* or *“denied”* — the NAS isn't logged in to ghcr.io, or its token expired:
+  see the NAS guide.
+- *“no matching manifest”* — the NAS has an ARM processor; the image is for Intel/AMD only. Use the Windows version on a
+  PC instead.
 
 ## Connect the app
 
@@ -222,9 +217,10 @@ ARM NASes don't get it: they are too slow for these models.
 ## Updating
 
 - Windows: `werd-server.exe stop`, replace the exe, `werd-server.exe start` (or just replace and double-click).
-- Docker: replace `dist/` (and `Dockerfile`, `docker-compose.yml`) with the new ones, then rebuild: in Container Manager
-  *Project → werd → Action → Build* (or `docker compose up -d --build`). Data is kept.
-  From 1.6 the container uses the NAS's own network (`network_mode: host`, for waking the PC): it listens on the NAS's
+- Docker: automatic. Watchtower checks every 10 minutes and installs a new version as soon as it's published; data is
+  kept. To go back one version, put it in `image:` (e.g. `ghcr.io/qawalah/werd-server:1.8.0`) and bring the project up
+  again (*Project → werd → Action → Build*, or `docker compose up -d`); put `latest` back to resume updates.
+  The container uses the NAS's own network (`network_mode: host`, for waking the PC): it listens on the NAS's
   port 8080 directly. If 8080 is taken, set `WERD_ADDR=:8090` (or another port) in `docker-compose.yml`.
 
 ## Options
@@ -247,8 +243,9 @@ Every option is a flag (`werd-server.exe -addr :9090`) or an environment variabl
 - API: `../docs/server-api.md`. Code: `main.go` (start-up, HTTPS), `api.go` (endpoints, limits), `store.go` (SQLite), `admin.go` + `web/admin.html`, `service_windows.go`.
 - `go test ./...` runs the server tests. The Android app's own library/family code can be run against a live server:
   `./gradlew testDebugUnitTest -PwerdTestServer=http://127.0.0.1:8080 --tests com.werd.app.RealServerTest` (from the repo root).
-- `./build.sh` builds the Windows and Linux binaries into `dist/`; `docker compose up -d --build` then builds and runs the image.
-  `Dockerfile.buildx` makes multi-platform image files with `docker buildx`; `Dockerfile.source` builds from source inside Docker.
+- `./build.sh` runs the tests and builds the Windows exes into `dist/windows/`.
+  `docker build --build-arg VERSION=1.8.0 -t werd-server .` builds the Docker image from source, the same way DevStore
+  does on GitHub.
 
 ## Security notes
 

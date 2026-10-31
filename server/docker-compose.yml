@@ -1,21 +1,21 @@
-# Werd server for a NAS (Synology Container Manager, QNAP Container Station, Unraid, TrueNAS, Portainer…)
-# or any machine with Docker.
+# Werd server for a NAS (Synology Container Manager) or any Intel/AMD machine with Docker.
 #
-# Keep this file together with "Dockerfile" and the "dist" folder, then:
-#   Synology: Container Manager → Project → Create → choose this folder → it builds and starts by itself
+# The image is built on GitHub for every new server version and published privately to
+# ghcr.io/qawalah/werd-server. The NAS logs in to ghcr.io once and runs Watchtower, which
+# installs new versions by itself: see docs/nas-setup.md in DevStore (qawalah/devstore).
+#
+# Put this file in its own folder on the NAS, then:
+#   Synology: Container Manager → Project → Create → choose that folder
 #   Command line: docker compose up -d
-#
-# Building happens on the NAS (under a minute; it needs internet once to fetch two small base images from gcr.io).
 
 services:
   werd:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: werd-server:1.8.0
-    pull_policy: build            # always build here — the image isn't on Docker Hub
+    image: ghcr.io/qawalah/werd-server:latest   # to roll back, put the previous version here (e.g. :1.8.0)
+    pull_policy: always
     container_name: werd-server
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true   # Watchtower keeps this container on the newest version
     # The NAS's own network, so the server can wake your PC (Wake-on-LAN) and sees the NAS's real addresses.
     # It listens on port 8080 of the NAS; to use another port, set WERD_ADDR below (e.g. WERD_ADDR=:8090).
     network_mode: host

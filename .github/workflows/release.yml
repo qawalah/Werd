@@ -1,7 +1,8 @@
-# DevStore, for a repo with BOTH an Android app and a Windows companion.
-# Every push to main builds both. A bumped versionCode releases the APK
-# (tag android-v...), a bumped version in <windows folder>/devstore.json
-# releases the Windows app (tag windows-v...). Each part releases on its own.
+# DevStore, for a repo with an Android app, a Windows server and its Docker image.
+# Every push to main builds them. A bumped versionCode releases the APK
+# (tag android-v...). A bumped version in server/devstore.json releases the
+# Windows app (tag windows-v...) and publishes the Docker image to
+# ghcr.io/qawalah/werd-server (tag docker-v...). Each part releases on its own.
 name: Release
 
 on:
@@ -23,3 +24,12 @@ jobs:
     uses: qawalah/devstore/.github/workflows/windows-release.yml@main
     with:
       working-directory: server   # the folder that holds devstore.json
+
+  docker:
+    uses: qawalah/devstore/.github/workflows/docker-release.yml@main
+    permissions:
+      contents: write             # tag and release docker-v...
+      packages: write             # push to ghcr.io and delete old versions
+    secrets: inherit              # passes GHCR_CLEANUP_TOKEN if it's ever needed
+    with:
+      working-directory: server   # devstore.json and Dockerfile

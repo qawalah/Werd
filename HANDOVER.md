@@ -105,25 +105,22 @@ go test .                          # about 25 s
   whenever the version changes:
   `go install github.com/tc-hib/go-winres@latest`, then
   `go-winres make --in winres/winres.json --arch amd64,arm64,386`.
-- **Version bump:** change it in `build.sh` (`VERSION`), `Dockerfile` (label), `docker-compose.yml` (image tag) and
-  `winres/winres.json` (then regenerate the `.syso` files).
-- **Release packages:** both are hand-assembled. `server/dist/` is git-ignored and holds third-party engines that aren't
-  in the repo.
+- **Version bump:** change `version` in `devstore.json`, `build.sh` (`VERSION`) and `winres/winres.json` (then
+  regenerate the `.syso` files). The `Dockerfile` and `docker-compose.yml` carry no version: DevStore labels the image.
+- **Release packages:** `server/dist/` is git-ignored and holds third-party engines that aren't in the repo.
   - **Windows zip:** `werd-server.exe` + `README.md` + a `llama/` folder (the llama.cpp **CPU** build for Windows:
-    `llama-server.exe` and its DLLs).
-  - **NAS zip:** one folder, `Werd Server for NAS/`, with `Dockerfile`, `docker-compose.yml`, `README.md`,
-    `.dockerignore`, `dist/linux/werd-server-linux-{amd64,arm64,armv7}` and `dist/linux/llama-amd64/` (the llama.cpp
-    Linux CPU build).
-  - **Getting the engines:** take the `llama/` and `llama-amd64/` folders from the 1.8.0 release zips
-    (`Werd-Server-Windows-1.8.0.zip`, `Werd-Server-Docker-1.8.0.zip`), or download a llama.cpp release and record its
-    build number. The Linux engine reports `0.7.0-dev (commit 7894e8b)`.
+    `llama-server.exe` and its DLLs, added by `scripts/prepare-llama.ps1`).
+  - **Docker image:** built on GitHub by DevStore's `docker-release.yml` from `server/Dockerfile`: the server from
+    source, plus the llama.cpp **b11800** Linux CPU build (`version: 0.7.0-dev (build 11800, commit d454a204e)`),
+    fetched with a SHA-256 check and run once at build time. It's published privately to
+    `ghcr.io/qawalah/werd-server` (`:<version>` and `:latest`, tag `docker-v<version>`), Intel/AMD only. The NAS
+    zip (`Werd Server for NAS/`) and the ARM images are no longer made.
   - **CUDA engine:** not bundled. The server downloads llama.cpp **b11800** `cuda-12.4` on demand (`gpu.go`).
-  - **Docker:** `Dockerfile` builds the image **on the NAS** from `dist/linux/` (no Go there). `Dockerfile.source`
-    (build from source) and `Dockerfile.buildx` (multi-arch from dist) are for developers.
 
 ### Manual steps that remain
 - **Signing key:** get `werd-release.jks` and its passwords into CI secrets (see below).
-- **Engines:** put the llama.cpp engines in place for the server release packages (see above).
+- **Engines:** none by hand any more. Windows gets its engine from `scripts/prepare-llama.ps1` and Docker from
+  `server/Dockerfile`; both must match `llamaBuild` in `gpu.go`.
 - **Release testing:** done by hand so far. The owner installs the APK on his phone and runs the server on Windows (the
   main server now) and in Docker on a Synology NAS.
 
@@ -244,8 +241,9 @@ GitHub.
 - **Cancelling reaches the server.** A phone cancel stops the server's (or helper PC's) work. A cancelled page answers
   `409 cancelled`, and the book goes to PAUSED, not ERROR.
 - **One server program for every setup.** The Windows exe or service and the Docker image on the NAS are the same code.
-  - **Docker:** the NAS uses a single, default-named `docker-compose.yml`, and the image is built on the NAS from
-    prebuilt binaries (only the distroless base comes from `gcr.io`).
+  - **Docker:** the NAS uses a single, default-named `docker-compose.yml` that pulls the private image
+    `ghcr.io/qawalah/werd-server:latest`, built on GitHub by DevStore. Watchtower on the NAS installs new versions; the
+    NAS setup is DevStore's `docs/nas-setup.md`.
   - **Database:** SQLite with one connection, which avoids "database is locked" and is plenty for a family.
 - **Addresses:** plain HTTP is allowed for home and Tailscale addresses. The app tries every known address of the server
   and corrects https/http itself.
