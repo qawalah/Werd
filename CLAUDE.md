@@ -60,3 +60,11 @@ check pass. Watchtower on the user's Synology NAS installs it by itself.
 - The image is Intel/AMD (`linux/amd64`) only. Data lives in the `/data` volume.
 - To check an image change before pushing, if Docker is available:
   `docker build --build-arg VERSION=<version> -t werd-test server`.
+
+## Store screenshots (DevStore app page)
+
+DevStore shows each part's screenshots from `store/screenshots/windows/`,
+`store/screenshots/android/` and `store/screenshots/docker/` on `main` (PNG, up
+to 6 each, in name order). The Windows and Docker ones are the server
+dashboard. The Android ones come from the `StoreShots` test: run the **Store
+screenshots** workflow in the Actions tab after the app's look changes.
