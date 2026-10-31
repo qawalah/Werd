@@ -1,0 +1,48 @@
+# Takes the Android app's store screenshots (the StoreShots test, Roborazzi) on
+# GitHub, where the Android SDK is installed, and commits them to
+# store/screenshots/android/. DevStore shows them on the app's page.
+# Run it from the Actions tab after the app's look changes.
+name: Store screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths:
+      - .github/workflows/store-shots.yml
+      - app/src/test/java/com/werd/app/StoreShots.kt
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Take the store screenshots
+        run: ./gradlew --no-daemon testDebugUnitTest --tests com.werd.app.StoreShots
+      - name: Copy up to 6 into store/screenshots/android
+        run: |
+          shopt -s nullglob
+          files=(app/screenshots/store_en_*.png)
+          [ ${#files[@]} -gt 0 ] || files=(app/screenshots/store_*.png)
+          if [ ${#files[@]} -eq 0 ]; then echo "::error::StoreShots made no store_*.png files"; ls -R app/screenshots || true; exit 1; fi
+          rm -rf store/screenshots/android && mkdir -p store/screenshots/android
+          i=0
+          for f in $(printf '%s\n' "${files[@]}" | sort | head -n 6); do
+            i=$((i + 1)); cp "$f" "store/screenshots/android/$(printf '%02d' "$i").png"
+          done
+          ls -la store/screenshots/android
+      - name: Commit
+        run: |
+          git add store/screenshots/android
+          if git diff --cached --quiet; then echo "Screenshots unchanged."; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Android store screenshots from StoreShots"
+          git push
